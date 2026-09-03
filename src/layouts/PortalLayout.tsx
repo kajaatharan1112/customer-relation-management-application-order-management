@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { Package, LogOut } from 'lucide-react'
 import { cn } from '@/shared/utils/cn'
 import { ROUTES } from '@/shared/constants/routes'
+import { APP_NAME } from '@/shared/constants/app'
 import { PORTAL_NAV } from '@/components/navigation/navConfig'
 import { authService } from '@/core/auth/auth.service'
 
@@ -13,7 +14,7 @@ export function PortalLayout() {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--color-neo-primary)] to-[#8b5cf6]">
             <Package size={16} />
           </span>
-          <span className="text-base font-bold tracking-tight">ONEVO</span>
+          <span className="text-base font-bold tracking-tight">{APP_NAME}</span>
         </div>
         <button
           type="button"

@@ -3,10 +3,11 @@ import { Sidebar } from '@/components/navigation/Sidebar'
 import { TopBar } from '@/components/navigation/TopBar'
 import { MobileBottomBar } from '@/components/navigation/MobileBottomBar'
 import { SIDEBAR_NAV } from '@/components/navigation/navConfig'
+import { APP_NAME } from '@/shared/constants/app'
 
 function titleForPath(pathname: string): string {
   const match = SIDEBAR_NAV.find((n) => (n.to === '/' ? pathname === '/' : pathname.startsWith(n.to)))
-  return match?.label ?? 'ONEVO'
+  return match?.label ?? APP_NAME
 }
 
 export function AppLayout() {

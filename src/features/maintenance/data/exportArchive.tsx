@@ -1,5 +1,6 @@
 import JSZip from 'jszip'
 import { formatCurrency } from '@/shared/utils/formatCurrency'
+import { APP_NAME } from '@/shared/constants/app'
 
 export interface ArchiveBill {
   billNumber: string
@@ -76,7 +77,7 @@ async function buildIndexPdf(
 ): Promise<Blob> {
   // Reuse the bill renderer for a simple manifest "bill".
   const manifest: ArchiveBill = {
-    billNumber: `ONEVO archive — ${bills.length} bill(s)`,
+    billNumber: `${APP_NAME} archive — ${bills.length} bill(s)`,
     customerName: bills.length
       ? `${bills[0]!.orderDate} … ${bills[bills.length - 1]!.orderDate}`
       : '(none)',

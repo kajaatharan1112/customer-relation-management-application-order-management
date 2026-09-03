@@ -1,0 +1,21 @@
+# Not needed for the production build / must never ship to the client
+New folder/
+docs/
+ONEVO_CRM_React_Supabase_Single_Tenant_Architecture.md
+
+# Tests & tooling artifacts
+e2e/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+coverage/
+
+# Design scratch files
+*.dc.html
+onevo-redesign.html
+canvas.json
+
+# Local Supabase stack
+supabase/.branches
+supabase/.temp

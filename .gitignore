@@ -42,10 +42,14 @@ playwright-report/
 blob-report/
 playwright/.cache/
 
-# AI / Claude workflow artifacts (docs/superpowers and the architecture .md stay tracked)
+# AI / Claude workflow artifacts
 .claude/
 CLAUDE.md
 .superpowers/
 *.dc.html
 onevo-redesign.html
 canvas.json
+
+# Internal docs — kept off the client deployment branch
+docs/
+/ONEVO_CRM_React_Supabase_Single_Tenant_Architecture.md

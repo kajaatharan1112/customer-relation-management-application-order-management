@@ -6,6 +6,7 @@ import { authService } from '@/core/auth/auth.service'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
 import { ROUTES } from '@/shared/constants/routes'
+import { APP_NAME } from '@/shared/constants/app'
 import { AuthShell, Field, AuthLink } from '@/features/auth/authShared'
 
 const schema = z.object({
@@ -35,7 +36,7 @@ export default function LoginPage() {
   return (
     <AuthShell
       title="Sign in"
-      subtitle="Welcome back to ONEVO"
+      subtitle={`Welcome back to ${APP_NAME}`}
       footer={
         <>
           New here? <AuthLink to={ROUTES.register}>Create an account</AuthLink>
