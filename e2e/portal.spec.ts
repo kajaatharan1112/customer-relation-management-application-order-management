@@ -13,6 +13,9 @@ test('customer sees their bill in the portal and can post a comment', async ({ p
   const customerPage = await customerCtx.newPage()
 
   await customerPage.goto('/portal')
+  // /portal is now the customisable Home page; the orders list moved to /portal/bills.
+  await customerPage.getByRole('link', { name: /my orders/i }).click()
+  await expect(customerPage).toHaveURL(/\/portal\/bills$/)
   await expect(customerPage.getByRole('heading', { level: 1, name: 'My Bills' })).toBeVisible()
   await expect(customerPage.getByText(/INV-\d{6}/).first()).toBeVisible()
 

@@ -18,6 +18,7 @@ export interface BillListItemVM {
   paidAmount: number
   orderDate: string
   deadline: string | null
+  rowsByType: Record<string, number>
 }
 
 export interface BillDetailVM extends BillListItemVM {

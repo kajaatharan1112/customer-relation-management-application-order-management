@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Plus } from 'lucide-react'
+import { Plus, Workflow, Tag, ArrowLeft, ShieldCheck, Users, DatabaseZap } from 'lucide-react'
 import { Button } from '@/shared/ui/Button'
 import { Modal } from '@/shared/ui/Modal'
 import { useToast } from '@/shared/ui/Toast'
@@ -13,13 +13,52 @@ import { WorkflowList } from '@/features/settings/components/WorkflowList'
 import { WorkflowFormModal } from '@/features/settings/components/WorkflowFormModal'
 import { OrderTypeList } from '@/features/settings/components/OrderTypeList'
 import { OrderTypeFormModal } from '@/features/settings/components/OrderTypeFormModal'
+import { SettingsSectionMenu, type SettingsSection } from '@/features/settings/components/SettingsSectionMenu'
+import { MembersSection } from '@/features/settings/components/MembersSection'
+import { AccountMaintenanceSection } from '@/features/maintenance/components/AccountMaintenanceSection'
 import type { WorkflowTemplateVM, OrderTypeVM } from '@/features/settings/settings.types'
 
-type Tab = 'workflows' | 'order-types'
+type Tab = 'workflows' | 'order-types' | 'admins' | 'employees' | 'maintenance'
+
+const SECTIONS: SettingsSection<Tab>[] = [
+  {
+    key: 'workflows',
+    title: 'Workflows',
+    description: 'Define how orders move through stages',
+    icon: Workflow,
+  },
+  {
+    key: 'order-types',
+    title: 'Order Types',
+    description: "What you bill for, and each type's workflow",
+    icon: Tag,
+  },
+  {
+    key: 'admins',
+    title: 'Admins',
+    description: 'People who can manage settings and everything else',
+    icon: ShieldCheck,
+  },
+  {
+    key: 'employees',
+    title: 'Employees',
+    description: 'Staff who work on orders, no settings access',
+    icon: Users,
+  },
+  {
+    key: 'maintenance',
+    title: 'Account maintenance',
+    description: 'Export old data to PDF, then free up storage',
+    icon: DatabaseZap,
+  },
+]
+
+const TAB_KEYS: Tab[] = ['workflows', 'order-types', 'admins', 'employees', 'maintenance']
 
 export default function SettingsPage() {
   const [params, setParams] = useSearchParams()
-  const tab: Tab = params.get('tab') === 'order-types' ? 'order-types' : 'workflows'
+  const tabParam = params.get('tab')
+  const tab: Tab | null = TAB_KEYS.find((k) => k === tabParam) ?? null
   const { isAdmin } = useRole()
   const { show } = useToast()
 
@@ -33,7 +72,8 @@ export default function SettingsPage() {
   const [confirmDeleteWorkflow, setConfirmDeleteWorkflow] = useState<WorkflowTemplateVM | null>(null)
   const [confirmDeleteOrderType, setConfirmDeleteOrderType] = useState<OrderTypeVM | null>(null)
 
-  const setTab = (t: Tab) => setParams({ tab: t }, { replace: true })
+  const openTab = (t: Tab) => setParams({ tab: t })
+  const backToMenu = () => setParams({})
 
   const runDeleteWorkflow = async () => {
     if (!confirmDeleteWorkflow) return
@@ -60,70 +100,94 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6 p-6 md:p-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--color-neo-text-primary)]">Settings</h1>
-          <p className="text-sm text-[var(--color-neo-text-secondary)]">
-            Configure how orders move through your business.
-          </p>
-        </div>
-        {isAdmin && tab === 'workflows' && (
-          <Button icon={<Plus size={16} />} onClick={() => setEditingWorkflow('new')}>
-            New workflow
-          </Button>
-        )}
-        {isAdmin && tab === 'order-types' && (
-          <Button icon={<Plus size={16} />} onClick={() => setEditingOrderType('new')}>
-            New order type
-          </Button>
-        )}
-      </div>
-
-      <div className="flex gap-2 border-b border-[var(--color-neo-secondary)]/20">
-        {(['workflows', 'order-types'] as const).map((t) => (
+    <div className="space-y-5 p-6 md:p-8">
+      {tab === null ? (
+        <>
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight text-[var(--color-neo-text-primary)]">Settings</h1>
+            <p className="text-sm text-[var(--color-neo-text-secondary)]">
+              Configure how orders move through your business.
+            </p>
+          </div>
+          <SettingsSectionMenu<Tab> sections={SECTIONS} onPick={openTab} />
+        </>
+      ) : (
+        <>
           <button
-            key={t}
             type="button"
-            onClick={() => setTab(t)}
-            className={
-              tab === t
-                ? 'border-b-2 border-[var(--color-neo-primary)] px-3 py-2 text-sm font-semibold text-[var(--color-neo-primary)]'
-                : 'px-3 py-2 text-sm font-medium text-[var(--color-neo-text-secondary)]'
-            }
+            onClick={backToMenu}
+            className="inline-flex items-center gap-1.5 rounded-[var(--radius-neo-pill)] bg-[var(--color-neo-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--color-neo-text-secondary)] shadow-[var(--shadow-neo-pressed)]"
           >
-            {t === 'workflows' ? 'Workflows' : 'Order Types'}
+            <ArrowLeft size={14} />Settings
           </button>
-        ))}
-      </div>
 
-      {tab === 'workflows' &&
-        (workflowsQuery.isLoading ? (
-          <p className="text-sm text-[var(--color-neo-text-secondary)]">Loading…</p>
-        ) : workflowsQuery.isError ? (
-          <p className="text-sm text-[var(--color-neo-danger)]">Could not load workflows.</p>
-        ) : (
-          <WorkflowList
-            templates={workflowsQuery.data ?? []}
-            canWrite={isAdmin}
-            onEdit={setEditingWorkflow}
-            onDelete={setConfirmDeleteWorkflow}
-          />
-        ))}
+          {(tab === 'admins' || tab === 'employees') && (
+            <MembersSection role={tab === 'admins' ? 'admin_member' : 'employee'} isAdmin={isAdmin} />
+          )}
 
-      {tab === 'order-types' &&
-        (orderTypesQuery.isLoading ? (
-          <p className="text-sm text-[var(--color-neo-text-secondary)]">Loading…</p>
-        ) : orderTypesQuery.isError ? (
-          <p className="text-sm text-[var(--color-neo-danger)]">Could not load order types.</p>
-        ) : (
-          <OrderTypeList
-            orderTypes={orderTypesQuery.data ?? []}
-            canWrite={isAdmin}
-            onEdit={setEditingOrderType}
-            onDelete={setConfirmDeleteOrderType}
-          />
-        ))}
+          {tab === 'maintenance' && (
+            <>
+              <h1 className="text-2xl font-extrabold tracking-tight text-[var(--color-neo-text-primary)]">
+                Account maintenance
+              </h1>
+              <AccountMaintenanceSection />
+            </>
+          )}
+
+          {(tab === 'workflows' || tab === 'order-types') && (
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-extrabold tracking-tight text-[var(--color-neo-text-primary)]">
+                  {tab === 'workflows' ? 'Workflows' : 'Order Types'}
+                </h1>
+                <p className="text-sm text-[var(--color-neo-text-secondary)]">
+                  {tab === 'workflows'
+                    ? 'Define how orders move through stages'
+                    : "What you bill for, and each type's workflow"}
+                </p>
+              </div>
+              {isAdmin && tab === 'workflows' && (
+                <Button icon={<Plus size={16} />} onClick={() => setEditingWorkflow('new')}>
+                  New workflow
+                </Button>
+              )}
+              {isAdmin && tab === 'order-types' && (
+                <Button icon={<Plus size={16} />} onClick={() => setEditingOrderType('new')}>
+                  New order type
+                </Button>
+              )}
+            </div>
+          )}
+
+          {tab === 'workflows' &&
+            (workflowsQuery.isLoading ? (
+              <p className="text-sm text-[var(--color-neo-text-secondary)]">Loading…</p>
+            ) : workflowsQuery.isError ? (
+              <p className="text-sm text-[var(--color-neo-danger)]">Could not load workflows.</p>
+            ) : (
+              <WorkflowList
+                templates={workflowsQuery.data ?? []}
+                canWrite={isAdmin}
+                onEdit={setEditingWorkflow}
+                onDelete={setConfirmDeleteWorkflow}
+              />
+            ))}
+
+          {tab === 'order-types' &&
+            (orderTypesQuery.isLoading ? (
+              <p className="text-sm text-[var(--color-neo-text-secondary)]">Loading…</p>
+            ) : orderTypesQuery.isError ? (
+              <p className="text-sm text-[var(--color-neo-danger)]">Could not load order types.</p>
+            ) : (
+              <OrderTypeList
+                orderTypes={orderTypesQuery.data ?? []}
+                canWrite={isAdmin}
+                onEdit={setEditingOrderType}
+                onDelete={setConfirmDeleteOrderType}
+              />
+            ))}
+        </>
+      )}
 
       {editingWorkflow && (
         <WorkflowFormModal

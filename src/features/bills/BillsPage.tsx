@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import { Button } from '@/shared/ui/Button'
 import { Modal } from '@/shared/ui/Modal'
-import { Field } from '@/features/auth/authShared'
 import { useToast } from '@/shared/ui/Toast'
 import { useBills } from '@/features/bills/queries/useBills'
 import { useDeleteBill } from '@/features/bills/mutations/useBillMutations'
@@ -11,6 +10,7 @@ import { useCustomers } from '@/features/customers/queries/useCustomers'
 import { useOrderTypes } from '@/features/settings/queries/useOrderTypes'
 import { BillList } from '@/features/bills/components/BillList'
 import { BillFormModal } from '@/features/bills/components/BillFormModal'
+import { BILL_FILTERS, matchesFilter, type BillFilterKey } from '@/shared/constants/billStatus'
 import type { BillListItemVM } from '@/features/bills/bills.types'
 
 export default function BillsPage() {
@@ -21,6 +21,7 @@ export default function BillsPage() {
   const del = useDeleteBill()
   const { show } = useToast()
   const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState<BillFilterKey>('all')
   const [creating, setCreating] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<BillListItemVM | null>(null)
 
@@ -30,13 +31,14 @@ export default function BillsPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
-    const all = data ?? []
-    if (!q) return all
-    return all.filter(
+    return (data ?? []).filter(
       (b) =>
-        b.billNumber.toLowerCase().includes(q) || b.customerName.toLowerCase().includes(q),
+        matchesFilter(b, filter) &&
+        (q === '' ||
+          b.billNumber.toLowerCase().includes(q) ||
+          b.customerName.toLowerCase().includes(q)),
     )
-  }, [data, search])
+  }, [data, search, filter])
 
   const runDelete = async () => {
     if (!confirmDelete) return
@@ -51,10 +53,10 @@ export default function BillsPage() {
   }
 
   return (
-    <div className="space-y-6 p-6 md:p-8">
+    <div className="space-y-5 p-6 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--color-neo-text-primary)]">Bills</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-[var(--color-neo-text-primary)]">Bills</h1>
           <p className="text-sm text-[var(--color-neo-text-secondary)]">
             Customer orders and invoices.
           </p>
@@ -64,13 +66,36 @@ export default function BillsPage() {
         </Button>
       </div>
 
-      <Field
-        id="bill-search"
-        label=""
-        placeholder="Search bills…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className="flex flex-col gap-4">
+        <div className="relative sm:w-80">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-neo-text-secondary)]" />
+          <input
+            type="text"
+            aria-label="Search bills"
+            placeholder="Search bills…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-10 w-full rounded-[var(--radius-neo-pill)] bg-[var(--color-neo-bg)] pl-10 pr-4 text-sm text-[var(--color-neo-text-primary)] shadow-[var(--shadow-neo-pressed)] outline-none placeholder:text-[var(--color-neo-text-secondary)]"
+          />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {BILL_FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              aria-pressed={filter === f.key}
+              onClick={() => setFilter(f.key)}
+              className={
+                filter === f.key
+                  ? 'h-8 rounded-[var(--radius-neo-pill)] bg-[var(--color-neo-primary)] px-4 text-xs font-semibold text-white shadow-[var(--shadow-neo-soft)]'
+                  : 'h-8 rounded-[var(--radius-neo-pill)] bg-[var(--color-neo-surface)] px-4 text-xs font-semibold text-[var(--color-neo-text-secondary)] shadow-[var(--shadow-neo-pressed)]'
+              }
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {isLoading ? (
         <p className="text-sm text-[var(--color-neo-text-secondary)]">Loading…</p>

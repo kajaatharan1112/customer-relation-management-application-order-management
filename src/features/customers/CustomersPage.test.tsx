@@ -35,6 +35,9 @@ vi.mock('@/features/customers/mutations/useCustomerMutations', () => ({
   useDeleteCustomer: () => ({ mutateAsync: vi.fn() }),
 }))
 vi.mock('@/shared/ui/Toast', () => ({ useToast: () => ({ show: vi.fn() }) }))
+vi.mock('@/features/bills/queries/useBills', () => ({
+  useBills: () => ({ data: [], isLoading: false, isError: false }),
+}))
 
 import CustomersPage from '@/features/customers/CustomersPage'
 
@@ -48,10 +51,17 @@ describe('CustomersPage', () => {
     expect(screen.getByText('Bob Bee')).toBeInTheDocument()
   })
 
+  it('renders the customer summary strip', () => {
+    render(<CustomersPage />)
+    const strip = screen.getByTestId('customer-summary')
+    expect(strip).toBeInTheDocument()
+    expect(within(strip).getByText('Customers')).toBeInTheDocument()
+  })
+
   it('blocks delete for a customer with bills (no confirm button in the dialog)', async () => {
     render(<CustomersPage />)
-    const card = screen.getByText('Bob Bee').closest('div')!.parentElement as HTMLElement
-    await userEvent.click(within(card).getByRole('button', { name: /delete/i }))
+    await userEvent.type(screen.getByPlaceholderText(/search/i), 'bob')
+    await userEvent.click(screen.getByRole('button', { name: /delete/i }))
     const dialog = screen.getByRole('dialog')
     expect(within(dialog).getByText(/has 3 active bill/i)).toBeInTheDocument()
     expect(within(dialog).queryByRole('button', { name: /delete/i })).not.toBeInTheDocument()

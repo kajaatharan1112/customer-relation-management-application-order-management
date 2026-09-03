@@ -1,12 +1,23 @@
 import { Fragment, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
-import { Card } from '@/shared/ui/Card'
+import {
+  ArrowLeft,
+  Mail,
+  Phone,
+  Calendar,
+  Clock,
+  Pencil,
+  Trash2,
+  History,
+  MessageSquare,
+  Paperclip,
+} from 'lucide-react'
 import { Button } from '@/shared/ui/Button'
 import { StatusBadge } from '@/shared/ui/StatusBadge'
 import { Modal } from '@/shared/ui/Modal'
 import { useToast } from '@/shared/ui/Toast'
 import { formatCurrency } from '@/shared/utils/formatCurrency'
+import { bucketOf, BUCKET_COLOR } from '@/shared/constants/billStatus'
 import { useRole } from '@/core/auth/auth.hooks'
 import { useBill } from '@/features/bills/queries/useBills'
 import {
@@ -65,10 +76,14 @@ export default function BillDetailPage() {
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   if (isLoading) {
-    return <div className="p-8 text-sm text-[var(--color-neo-text-secondary)]">Loading…</div>
+    return (
+      <div className="p-6 text-sm text-[var(--color-neo-text-secondary)] md:p-8">Loading…</div>
+    )
   }
   if (!bill) {
-    return <div className="p-8 text-sm text-[var(--color-neo-text-secondary)]">Bill not found.</div>
+    return (
+      <div className="p-6 text-sm text-[var(--color-neo-text-secondary)] md:p-8">Bill not found.</div>
+    )
   }
 
   const balance = bill.total - bill.paidAmount
@@ -84,44 +99,68 @@ export default function BillDetailPage() {
   }
 
   return (
-    <div className="space-y-6 p-6 md:p-8">
+    <div className="space-y-5 p-6 md:p-8">
       <button
         type="button"
         onClick={() => navigate('/bills')}
-        className="inline-flex items-center gap-1 text-sm text-[var(--color-neo-text-secondary)]"
+        className="inline-flex items-center gap-1.5 rounded-[var(--radius-neo-pill)] bg-[var(--color-neo-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--color-neo-text-secondary)] shadow-[var(--shadow-neo-pressed)]"
       >
-        <ArrowLeft size={16} /> Bills
+        <ArrowLeft size={14} /> Bills
       </button>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-[var(--color-neo-text-primary)]">{bill.billNumber}</h1>
-          <StatusBadge label={bill.statusLabel} />
+          <h1 className="text-2xl font-extrabold tracking-tight text-[var(--color-neo-text-primary)]">
+            {bill.billNumber}
+          </h1>
+          <StatusBadge label={bill.statusLabel} color={BUCKET_COLOR[bucketOf(bill.statusKey)]} />
         </div>
         <div className="flex gap-2">
-          <Button variant="ghost" size="sm" onClick={() => setEditing(true)}>
-            Edit
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(true)}>
-            Delete
-          </Button>
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="flex items-center gap-1.5 rounded-xl bg-[var(--color-neo-warning)]/15 px-3 py-2 text-xs font-semibold text-[#a9750b] transition active:scale-95"
+          >
+            <Pencil size={15} />Edit
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirmDelete(true)}
+            className="flex items-center gap-1.5 rounded-xl bg-[var(--color-neo-danger)]/10 px-3 py-2 text-xs font-semibold text-[var(--color-neo-danger)] transition active:scale-95"
+          >
+            <Trash2 size={15} />Delete
+          </button>
         </div>
       </div>
 
-      <Card className="space-y-1 p-4 text-sm">
-        <p className="font-semibold text-[var(--color-neo-text-primary)]">{bill.customerName}</p>
-        <p className="text-[var(--color-neo-text-secondary)]">
-          {bill.customerEmail}
-          {bill.customerPhone ? ` · ${bill.customerPhone}` : ''}
-        </p>
-        <p className="text-[var(--color-neo-text-secondary)]">
-          Ordered {bill.orderDate} · Due {bill.deadline ?? '—'}
-        </p>
-        {bill.notes && <p className="text-[var(--color-neo-text-secondary)]">{bill.notes}</p>}
-      </Card>
+      <div className="rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)] p-4">
+        <p className="text-sm font-semibold text-[var(--color-neo-text-primary)]">{bill.customerName}</p>
+        <div className="mt-2 flex flex-col gap-2">
+          <span className="flex items-center gap-2.5 text-[13px] text-[var(--color-neo-text-secondary)]">
+            <Mail size={15} className="shrink-0" />
+            {bill.customerEmail}
+          </span>
+          <span className="flex items-center gap-2.5 text-[13px] text-[var(--color-neo-text-secondary)]">
+            <Phone size={15} className="shrink-0" />
+            {bill.customerPhone ?? '—'}
+          </span>
+          <span className="flex items-center gap-2.5 text-[13px] text-[var(--color-neo-text-secondary)]">
+            <Calendar size={15} className="shrink-0" />
+            Ordered {bill.orderDate}
+          </span>
+          <span className="flex items-center gap-2.5 text-[13px] text-[var(--color-neo-text-secondary)]">
+            <Clock size={15} className="shrink-0" />
+            Due {bill.deadline ?? '—'}
+          </span>
+        </div>
+        {bill.notes && (
+          <p className="mt-2 text-[13px] text-[var(--color-neo-text-secondary)]/70">{bill.notes}</p>
+        )}
+      </div>
 
-      <Card className="p-4">
-        <div className="overflow-x-auto">
+      <div className="rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)] p-4">
+        <h2 className="text-[15px] font-bold text-[var(--color-neo-text-primary)]">Line items</h2>
+        <div className="mt-3 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-[var(--color-neo-text-secondary)]">
@@ -171,61 +210,81 @@ export default function BillDetailPage() {
                 </Fragment>
               ))}
             </tbody>
-            <tfoot className="border-t-2 border-[var(--color-neo-secondary)]/25">
-              <tr>
-                <td className="pt-2 font-semibold" colSpan={2}>
-                  Total
-                </td>
-                <td className="pt-2 text-right font-semibold">{formatCurrency(bill.total)}</td>
-              </tr>
-              <tr>
-                <td className="text-[var(--color-neo-text-secondary)]" colSpan={2}>
-                  Paid
-                </td>
-                <td className="text-right text-[var(--color-neo-text-secondary)]">
-                  {formatCurrency(bill.paidAmount)}
-                </td>
-              </tr>
-              <tr>
-                <td className="font-semibold" colSpan={2}>
-                  Balance
-                </td>
-                <td
-                  className={`text-right font-semibold ${
-                    balance > 0 ? 'text-[var(--color-neo-danger)]' : ''
-                  }`}
-                >
-                  {formatCurrency(balance)}
-                </td>
-              </tr>
-            </tfoot>
           </table>
         </div>
-      </Card>
-
-      <div className="flex flex-wrap items-center gap-4">
-        <BillStatusControl
-          currentKey={bill.statusKey}
-          onChange={async (key) => {
-            try {
-              await setStatus.mutateAsync({ id: bill.id, statusKey: key })
-            } catch (err) {
-              show({ type: 'error', title: 'Could not change status', message: (err as Error).message })
-            }
-          }}
-        />
-        <Button variant="default" size="sm" onClick={() => setPaying(true)}>
-          Record payment
-        </Button>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <div
+            data-testid="bill-total"
+            className="flex flex-col gap-0.5 rounded-xl bg-[var(--color-neo-surface)] px-3 py-2 shadow-[var(--shadow-neo-pressed)]"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-neo-text-secondary)]">
+              Total
+            </span>
+            <span className="text-sm font-semibold text-[var(--color-neo-text-primary)]">
+              {formatCurrency(bill.total)}
+            </span>
+          </div>
+          <div
+            data-testid="bill-paid"
+            className="flex flex-col gap-0.5 rounded-xl bg-[var(--color-neo-surface)] px-3 py-2 shadow-[var(--shadow-neo-pressed)]"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-neo-text-secondary)]">
+              Paid
+            </span>
+            <span className="text-sm font-semibold text-[var(--color-neo-text-primary)]">
+              {formatCurrency(bill.paidAmount)}
+            </span>
+          </div>
+          <div
+            data-testid="bill-balance"
+            className="flex flex-col gap-0.5 rounded-xl bg-[var(--color-neo-surface)] px-3 py-2 shadow-[var(--shadow-neo-pressed)]"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-neo-text-secondary)]">
+              Balance
+            </span>
+            <span
+              className={`text-sm font-semibold ${
+                balance > 0
+                  ? 'text-[var(--color-neo-danger)]'
+                  : 'text-[var(--color-neo-text-primary)]'
+              }`}
+            >
+              {formatCurrency(balance)}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <Card className="p-4">
-        <h2 className="mb-3 text-sm font-semibold text-[var(--color-neo-text-primary)]">History</h2>
-        <HistoryTimeline entries={history.data ?? []} />
-      </Card>
+      <div className="rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)] p-4">
+        <h2 className="text-[15px] font-bold text-[var(--color-neo-text-primary)]">Actions</h2>
+        <div className="mt-3 flex flex-wrap items-center gap-4">
+          <BillStatusControl
+            currentKey={bill.statusKey}
+            onChange={async (key) => {
+              try {
+                await setStatus.mutateAsync({ id: bill.id, statusKey: key })
+              } catch (err) {
+                show({ type: 'error', title: 'Could not change status', message: (err as Error).message })
+              }
+            }}
+          />
+          <Button variant="default" size="sm" onClick={() => setPaying(true)}>
+            Record payment
+          </Button>
+        </div>
+      </div>
 
-      <Card className="p-4">
-        <h2 className="mb-3 text-sm font-semibold text-[var(--color-neo-text-primary)]">Messages</h2>
+      <div className="rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)] p-5">
+        <h2 className="mb-3 flex items-center gap-2 text-[15px] font-bold text-[var(--color-neo-text-primary)]">
+          <History size={16} />History
+        </h2>
+        <HistoryTimeline entries={history.data ?? []} />
+      </div>
+
+      <div className="rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)] p-5">
+        <h2 className="mb-3 flex items-center gap-2 text-[15px] font-bold text-[var(--color-neo-text-primary)]">
+          <MessageSquare size={16} />Messages
+        </h2>
         <CommentThread
           comments={comments.data ?? []}
           posting={addComment.isPending}
@@ -237,10 +296,12 @@ export default function BillDetailPage() {
             }
           }}
         />
-      </Card>
+      </div>
 
-      <Card className="p-4">
-        <h2 className="mb-3 text-sm font-semibold text-[var(--color-neo-text-primary)]">Files</h2>
+      <div className="rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)] p-5">
+        <h2 className="mb-3 flex items-center gap-2 text-[15px] font-bold text-[var(--color-neo-text-primary)]">
+          <Paperclip size={16} />Files
+        </h2>
         <AttachmentList
           attachments={attachments.data ?? []}
           canManage={isStaff}
@@ -260,7 +321,7 @@ export default function BillDetailPage() {
             }
           }}
         />
-      </Card>
+      </div>
 
       {editing && (
         <BillFormModal

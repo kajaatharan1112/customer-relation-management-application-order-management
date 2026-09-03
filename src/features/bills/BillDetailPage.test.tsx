@@ -71,5 +71,6 @@ describe('BillDetailPage (phase 4)', () => {
     expect(screen.getByText('Files')).toBeInTheDocument()
     // tagged row renders its stepper stage
     expect(screen.getByText('Prep')).toBeInTheDocument()
+    expect(screen.getByTestId('bill-balance')).toHaveTextContent(/LKR/)
   })
 })

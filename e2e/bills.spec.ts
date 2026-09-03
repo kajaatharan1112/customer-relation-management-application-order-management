@@ -42,5 +42,5 @@ test('change status and record a payment updates the balance', async ({ page }) 
   await page.getByLabel(/total paid so far/i).fill('300')
   await page.getByRole('dialog').getByRole('button', { name: /^save$/i }).click()
 
-  await expect(page.getByText('Balance').locator('xpath=following-sibling::td')).toContainText('200')
+  await expect(page.getByTestId('bill-balance')).toContainText('200')
 })

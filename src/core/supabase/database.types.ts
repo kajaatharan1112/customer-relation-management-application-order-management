@@ -378,6 +378,83 @@ export type Database = {
           },
         ]
       }
+      export_tokens: {
+        Row: {
+          consumed_at: string | null
+          covers_before: string
+          created_at: string
+          created_by: string | null
+          id: string
+        }
+        Insert: {
+          consumed_at?: string | null
+          covers_before: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+        }
+        Update: {
+          consumed_at?: string | null
+          covers_before?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "export_tokens_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gallery_images: {
+        Row: {
+          caption: string | null
+          deleted_at: string | null
+          id: string
+          image_path: string
+          sort_order: number
+        }
+        Insert: {
+          caption?: string | null
+          deleted_at?: string | null
+          id?: string
+          image_path: string
+          sort_order?: number
+        }
+        Update: {
+          caption?: string | null
+          deleted_at?: string | null
+          id?: string
+          image_path?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      home_blocks: {
+        Row: {
+          id: string
+          is_visible: boolean
+          sort_order: number
+          type: string
+        }
+        Insert: {
+          id?: string
+          is_visible?: boolean
+          sort_order: number
+          type: string
+        }
+        Update: {
+          id?: string
+          is_visible?: boolean
+          sort_order?: number
+          type?: string
+        }
+        Relationships: []
+      }
       order_status_history: {
         Row: {
           bill_row_id: string
@@ -490,32 +567,53 @@ export type Database = {
       }
       organization_settings: {
         Row: {
+          about: string
+          address: string
           currency_code: string
           currency_locale: string
           default_bill_status_id: string
+          email: string
+          hours: string
           id: boolean
           logo_path: string | null
           org_name: string
+          phone: string
+          socials: Json
+          tagline: string
           updated_at: string
           updated_by: string | null
         }
         Insert: {
+          about?: string
+          address?: string
           currency_code?: string
           currency_locale?: string
           default_bill_status_id: string
+          email?: string
+          hours?: string
           id?: boolean
           logo_path?: string | null
           org_name?: string
+          phone?: string
+          socials?: Json
+          tagline?: string
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
+          about?: string
+          address?: string
           currency_code?: string
           currency_locale?: string
           default_bill_status_id?: string
+          email?: string
+          hours?: string
           id?: boolean
           logo_path?: string | null
           org_name?: string
+          phone?: string
+          socials?: Json
+          tagline?: string
           updated_at?: string
           updated_by?: string | null
         }
@@ -528,6 +626,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      products: {
+        Row: {
+          category: string
+          deleted_at: string | null
+          description: string | null
+          id: string
+          image_path: string | null
+          is_active: boolean
+          name: string
+          price: number
+          sort_order: number
+        }
+        Insert: {
+          category?: string
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          image_path?: string | null
+          is_active?: boolean
+          name: string
+          price?: number
+          sort_order?: number
+        }
+        Update: {
+          category?: string
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          image_path?: string | null
+          is_active?: boolean
+          name?: string
+          price?: number
+          sort_order?: number
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -582,6 +716,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      promotions: {
+        Row: {
+          body: string | null
+          deleted_at: string | null
+          discount_kind: string
+          discount_value: string | null
+          ends_at: string | null
+          id: string
+          image_path: string | null
+          is_active: boolean
+          sort_order: number
+          starts_at: string | null
+          title: string
+        }
+        Insert: {
+          body?: string | null
+          deleted_at?: string | null
+          discount_kind?: string
+          discount_value?: string | null
+          ends_at?: string | null
+          id?: string
+          image_path?: string | null
+          is_active?: boolean
+          sort_order?: number
+          starts_at?: string | null
+          title: string
+        }
+        Update: {
+          body?: string | null
+          deleted_at?: string | null
+          discount_kind?: string
+          discount_value?: string | null
+          ends_at?: string | null
+          id?: string
+          image_path?: string | null
+          is_active?: boolean
+          sort_order?: number
+          starts_at?: string | null
+          title?: string
+        }
+        Relationships: []
       }
       user_types: {
         Row: {
@@ -737,6 +913,7 @@ export type Database = {
       }
     }
     Functions: {
+      active_admin_count: { Args: never; Returns: number }
       advance_bill_row_stage: {
         Args: { p_note?: string; p_row_id: string; p_to_stage_id: string }
         Returns: undefined
@@ -745,6 +922,11 @@ export type Database = {
       current_user_type: { Args: never; Returns: string }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      maintenance_stats: { Args: { p_before: string }; Returns: Json }
+      purge_archived_data: {
+        Args: { p_before: string; p_token: string }
+        Returns: Json
+      }
       replace_workflow_stages: {
         Args: { p_stages: Json; p_template_id: string }
         Returns: undefined
@@ -752,6 +934,10 @@ export type Database = {
       save_bill: { Args: { p_bill: Json; p_rows: Json }; Returns: string }
       set_bill_status: {
         Args: { p_bill_id: string; p_status_key: string }
+        Returns: undefined
+      }
+      set_member_status: {
+        Args: { p_profile_id: string; p_status: string }
         Returns: undefined
       }
       soft_delete_bill: { Args: { p_bill_id: string }; Returns: undefined }

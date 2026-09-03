@@ -58,6 +58,28 @@ describe('billRepository', () => {
     })
   })
 
+  it('rolls row amounts up by order type, bucketing null names as Unassigned', async () => {
+    const row = {
+      id: 'b1',
+      bill_number: 'BILL-1',
+      customer_id: 'c1',
+      order_date: '2026-08-01',
+      deadline: null,
+      paid_amount: 0,
+      notes: null,
+      profiles: { full_name: 'A', email: 'a@x.co', phone: null },
+      bill_statuses: { key: 'pending', label: 'Pending' },
+      bill_rows: [
+        { id: 'r1', detail: 'x', order_type_id: 'o1', amount: 100, deleted_at: null, current_stage_id: null, order_types: { name: 'Printing' } },
+        { id: 'r2', detail: 'y', order_type_id: 'o1', amount: 50, deleted_at: null, current_stage_id: null, order_types: { name: 'Printing' } },
+        { id: 'r3', detail: 'z', order_type_id: null, amount: 25, deleted_at: null, current_stage_id: null, order_types: null },
+      ],
+    }
+    h.listOrder.mockResolvedValueOnce({ data: [row], error: null })
+    const vm = (await billRepository.list())[0]
+    expect(vm.rowsByType).toEqual({ Printing: 150, Unassigned: 25 })
+  })
+
   it('save calls save_bill with snake_case payload', async () => {
     await billRepository.save(
       { customerId: 'p1', orderDate: '2026-09-01', deadline: null, notes: 'x' },

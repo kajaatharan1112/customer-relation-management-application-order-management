@@ -46,6 +46,11 @@ function liveRows(rows: RowRow[]): BillRowVM[] {
 
 function toListItem(b: BillRow): BillListItemVM {
   const rows = liveRows(b.bill_rows)
+  const rowsByType = rows.reduce<Record<string, number>>((acc, r) => {
+    const key = r.orderTypeName ?? 'Unassigned'
+    acc[key] = (acc[key] ?? 0) + r.amount
+    return acc
+  }, {})
   return {
     id: b.id,
     billNumber: b.bill_number,
@@ -57,6 +62,7 @@ function toListItem(b: BillRow): BillListItemVM {
     paidAmount: Number(b.paid_amount),
     orderDate: b.order_date,
     deadline: b.deadline,
+    rowsByType,
   }
 }
 

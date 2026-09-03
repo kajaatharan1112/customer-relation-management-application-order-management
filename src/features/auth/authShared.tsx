@@ -40,7 +40,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(
         id={id}
         ref={ref}
         className={cn(
-          'h-10 w-full rounded-[var(--radius-neo-sm)] bg-[var(--color-neo-bg)] px-3 text-sm text-[var(--color-neo-text-primary)] shadow-[var(--shadow-neo-pressed)] outline-none transition focus:ring-2 focus:ring-[var(--color-neo-primary)]',
+          'h-10 w-full rounded-[var(--radius-neo-md)] bg-[var(--color-neo-bg)] px-3 text-sm text-[var(--color-neo-text-primary)] shadow-[var(--shadow-neo-pressed)] outline-none transition focus:ring-2 focus:ring-[var(--color-neo-primary)]/40 focus:ring-offset-1 focus:ring-offset-[var(--color-neo-bg)]',
           className,
         )}
         {...props}

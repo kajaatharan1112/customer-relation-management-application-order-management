@@ -1,0 +1,91 @@
+import { motion } from 'framer-motion'
+import { FileText, Check, Eye, Pencil, Trash2, Calendar, Clock } from 'lucide-react'
+import { StatusBadge } from '@/shared/ui/StatusBadge'
+import { formatCurrency } from '@/shared/utils/formatCurrency'
+import { bucketOf, BUCKET_COLOR, progressFromBucket } from '@/shared/constants/billStatus'
+import type { BillListItemVM } from '@/features/bills/bills.types'
+
+export interface BillCardProps {
+  bill: BillListItemVM
+  onOpen: (b: BillListItemVM) => void
+  onEdit?: (b: BillListItemVM) => void
+  onDelete?: (b: BillListItemVM) => void
+}
+
+export function BillCard({ bill, onOpen, onEdit, onDelete }: BillCardProps) {
+  const bucket = bucketOf(bill.statusKey)
+  const pending = bill.total - bill.paidAmount
+  const progress = progressFromBucket(bill.statusKey)
+  const accent = BUCKET_COLOR[bucket]
+  const Icon = bucket === 'done' ? Check : FileText
+  const count = 1 + (onEdit ? 1 : 0) + (onDelete ? 1 : 0)
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col overflow-hidden rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)]"
+    >
+      <div className="flex items-start gap-3 p-4">
+        <span
+          className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white"
+          style={{ background: `linear-gradient(135deg, ${accent}, #8b5cf6)` }}
+        >
+          <Icon size={20} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-semibold text-[var(--color-neo-text-primary)]">{bill.billNumber}</div>
+          <div className="mt-0.5 truncate text-xs text-[var(--color-neo-text-secondary)]">{bill.customerName}</div>
+        </div>
+        <StatusBadge label={bill.statusLabel} color={accent} />
+      </div>
+
+      <div className="flex flex-col gap-4 border-t border-[var(--color-neo-secondary)]/15 px-4 pb-3 pt-4">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col gap-0.5 rounded-xl bg-[var(--color-neo-surface)] px-3 py-2 shadow-[var(--shadow-neo-pressed)]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-neo-text-secondary)]">Total</span>
+            <span className="text-sm font-semibold text-[var(--color-neo-text-primary)]">{formatCurrency(bill.total)}</span>
+          </div>
+          <div className="flex flex-col gap-0.5 rounded-xl bg-[var(--color-neo-surface)] px-3 py-2 shadow-[var(--shadow-neo-pressed)]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-neo-text-secondary)]">Pending</span>
+            <span className={pending > 0 ? 'text-sm font-semibold text-[var(--color-neo-danger)]' : 'text-sm font-semibold text-[var(--color-neo-success)]'}>
+              {formatCurrency(pending)}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 text-xs text-[var(--color-neo-text-secondary)]">
+          <span className="flex items-center gap-2"><Calendar size={13} className="shrink-0" />Ord: {bill.orderDate}</span>
+          <span className="flex items-center gap-2"><Clock size={13} className="shrink-0" />Due: {bill.deadline ?? '—'}</span>
+        </div>
+
+        <div>
+          <div className="mb-1.5 flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-neo-text-secondary)]">Work progress</span>
+            <span className="text-xs font-semibold text-[var(--color-neo-text-primary)]">{progress}%</span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-[var(--color-neo-surface)] shadow-[var(--shadow-neo-pressed)]">
+            <div className="h-full rounded-full" style={{ width: `${progress}%`, background: accent }} />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-2 px-4 pb-4 pt-2" style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}>
+        <button type="button" onClick={() => onOpen(bill)} className="flex items-center justify-center gap-1.5 rounded-xl bg-[var(--color-neo-primary)]/10 py-2.5 text-xs font-semibold text-[var(--color-neo-primary)] transition active:scale-95">
+          <Eye size={15} />View
+        </button>
+        {onEdit && (
+          <button type="button" onClick={() => onEdit(bill)} className="flex items-center justify-center gap-1.5 rounded-xl bg-[var(--color-neo-warning)]/15 py-2.5 text-xs font-semibold text-[#a9750b] transition active:scale-95">
+            <Pencil size={15} />Edit
+          </button>
+        )}
+        {onDelete && (
+          <button type="button" onClick={() => onDelete(bill)} className="flex items-center justify-center gap-1.5 rounded-xl bg-[var(--color-neo-danger)]/10 py-2.5 text-xs font-semibold text-[var(--color-neo-danger)] transition active:scale-95">
+            <Trash2 size={15} />Delete
+          </button>
+        )}
+      </div>
+    </motion.div>
+  )
+}

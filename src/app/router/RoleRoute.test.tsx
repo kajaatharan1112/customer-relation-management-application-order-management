@@ -71,4 +71,38 @@ describe('RoleRoute', () => {
     )
     expect(screen.getByText('dashboard')).toBeInTheDocument()
   })
+
+  it('allow="admin" lets an admin_member in', async () => {
+    vi.resetModules()
+    mockAuth('admin_member')
+    const { RoleRoute } = await import('@/app/router/RoleRoute')
+    render(
+      <MemoryRouter initialEntries={['/admin']}>
+        <Routes>
+          <Route element={<RoleRoute allow="admin" />}>
+            <Route path="/admin" element={<div>admin area</div>} />
+          </Route>
+          <Route path="/" element={<div>dashboard</div>} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    expect(screen.getByText('admin area')).toBeInTheDocument()
+  })
+
+  it('allow="admin" redirects an employee to the dashboard', async () => {
+    vi.resetModules()
+    mockAuth('employee')
+    const { RoleRoute } = await import('@/app/router/RoleRoute')
+    render(
+      <MemoryRouter initialEntries={['/admin']}>
+        <Routes>
+          <Route element={<RoleRoute allow="admin" />}>
+            <Route path="/admin" element={<div>admin area</div>} />
+          </Route>
+          <Route path="/" element={<div>dashboard</div>} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    expect(screen.getByText('dashboard')).toBeInTheDocument()
+  })
 })

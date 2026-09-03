@@ -16,6 +16,7 @@ export const E2E = {
   orderTypeId: 'e2e0bbbb-0000-0000-0000-000000000001',
   orderTypeName: 'E2E Poster',
   customerId: '33333333-3333-3333-3333-333333333333', // Cathy Customer (from supabase/seed.sql)
+  oldBillId: 'e2e0cccc-0000-0000-0000-000000000001', // a 2-year-old completed bill, eligible to purge
 }
 
 // Runs immediately after `supabase db reset`, so the DB is always clean here —
@@ -33,6 +34,14 @@ insert into public.workflow_stages (template_id, name, sort_order, color, is_fin
 
 insert into public.order_types (id, name, workflow_template_id, fixed_amount, is_active)
 values ('${E2E.orderTypeId}', '${E2E.orderTypeName}', '${E2E.workflowId}', 1200, true);
+
+-- One old, completed bill so the Account maintenance spec has something eligible to purge.
+insert into public.bills (id, bill_number, customer_id, bill_status_id, order_date)
+values ('${E2E.oldBillId}', 'ARCHIVE-1', '${E2E.customerId}',
+        (select id from public.bill_statuses where key = 'completed'),
+        (current_date - interval '2 years')::date);
+insert into public.bill_rows (bill_id, detail, amount)
+values ('${E2E.oldBillId}', 'Old archived poster', 900);
 `
 
 function run(cmd: string, args: string[], opts: { input?: string } = {}) {

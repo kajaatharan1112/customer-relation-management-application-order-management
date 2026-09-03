@@ -1,42 +1,31 @@
-import { Card } from '@/shared/ui/Card'
-import { Button } from '@/shared/ui/Button'
+import { CustomerCard } from '@/features/customers/components/CustomerCard'
 import type { CustomerVM } from '@/features/customers/customers.types'
+import type { CustomerFinance } from '@/features/customers/customers.selectors'
 
 export function CustomerList({
   customers,
   onEdit,
   onDelete,
+  financials,
 }: {
   customers: CustomerVM[]
   onEdit: (c: CustomerVM) => void
   onDelete: (c: CustomerVM) => void
+  financials?: Record<string, CustomerFinance>
 }) {
   if (customers.length === 0) {
-    return (
-      <p className="text-sm text-[var(--color-neo-text-secondary)]">
-        No customers yet — add your first.
-      </p>
-    )
+    return <p className="py-12 text-center text-sm text-[var(--color-neo-text-secondary)]">No customers yet — add your first.</p>
   }
   return (
-    <div className="space-y-3">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {customers.map((c) => (
-        <Card key={c.profileId} className="flex items-center justify-between p-4">
-          <div>
-            <h4 className="font-semibold text-[var(--color-neo-text-primary)]">{c.fullName}</h4>
-            <p className="text-xs text-[var(--color-neo-text-secondary)]">
-              {[c.companyName, c.email, c.phone].filter(Boolean).join(' · ')}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={() => onEdit(c)}>
-              Edit
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => onDelete(c)}>
-              Delete
-            </Button>
-          </div>
-        </Card>
+        <CustomerCard
+          key={c.profileId}
+          customer={c}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          finance={financials?.[c.profileId]}
+        />
       ))}
     </div>
   )

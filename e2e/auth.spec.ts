@@ -18,7 +18,8 @@ test('customer signs in and lands on the portal', async ({ page }) => {
   await page.getByLabel('Password', { exact: true }).fill('password123')
   await page.getByRole('button', { name: /^sign in$/i }).click()
   await expect(page).toHaveURL(/\/portal$/)
-  await expect(page.getByRole('heading', { level: 1, name: 'My Bills' })).toBeVisible()
+  // /portal is the customisable Home page; "My orders" links to the bills list.
+  await expect(page.getByRole('link', { name: /my orders/i })).toBeVisible()
 })
 
 test('a signed-in customer cannot reach staff routes', async ({ page }) => {

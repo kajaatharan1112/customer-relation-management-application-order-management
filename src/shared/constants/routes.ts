@@ -4,12 +4,15 @@ export const ROUTES = {
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
   authCallback: '/auth/callback',
+  home: '/home',
   dashboard: '/',
   customers: '/customers',
   bills: '/bills',
+  sales: '/sales',
   billDetail: '/bills/:id',
   settings: '/settings',
   portalHome: '/portal',
+  portalBills: '/portal/bills',
   portalBill: '/portal/bills/:id',
 } as const
 
