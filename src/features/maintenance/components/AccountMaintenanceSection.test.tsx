@@ -11,12 +11,18 @@ vi.mock('@/features/maintenance/mutations/useMaintenanceActions', () => ({
 vi.mock('@/shared/ui/Toast', () => ({ useToast: () => ({ show: vi.fn() }) }))
 
 import { AccountMaintenanceSection } from '@/features/maintenance/components/AccountMaintenanceSection'
+import { defaultCutoff } from '@/features/maintenance/maintenance.retention'
+
+// The component's cut-off state is defaultCutoff() (today − 12 months), and
+// canPurge gates on `token.coversBefore >= cutoff`. Keep these in step with it
+// rather than hardcoding a date that only holds until the next day rolls over.
+const CUTOFF = defaultCutoff()
 
 const STATS = {
   data: {
     total: { bills: 20, billRows: 44, comments: 9, attachments: 12, storageBytes: 100000 },
     eligible: { bills: 6, billRows: 12, comments: 3, attachments: 4, storageBytes: 20000 },
-    cutoff: '2025-09-03',
+    cutoff: CUTOFF,
   },
   isLoading: false,
   isError: false,
@@ -25,7 +31,7 @@ const STATS = {
 describe('AccountMaintenanceSection', () => {
   it('renders the eligible counts and gates Purge behind an export', async () => {
     h.stats.mockReturnValue(STATS)
-    h.runExport.mockResolvedValue({ token: 'tok-1', coversBefore: '2025-09-03', createdAt: '' })
+    h.runExport.mockResolvedValue({ token: 'tok-1', coversBefore: CUTOFF, createdAt: '' })
     render(<AccountMaintenanceSection />)
 
     // eligible bills count is shown
