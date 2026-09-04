@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Modal } from '@/shared/ui/Modal'
-import { Field } from '@/features/auth/authShared'
+import { Field } from '@/shared/ui/form/Field'
+import { FormGrid } from '@/shared/ui/form/FormGrid'
+import { FormActions } from '@/shared/ui/form/FormActions'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
 import { useCreateMember, useUpdateMember } from '@/features/team/mutations/useMemberMutations'
@@ -51,38 +53,46 @@ export function MemberFormModal({ role, member, onClose }: MemberFormModalProps)
   }
 
   return (
-    <Modal open onClose={onClose} title={isEdit ? `Edit ${noun}` : `New ${noun}`}>
-      <Field id="m-name" label="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-      <Field
-        id="m-email"
-        label="Email"
-        type="email"
-        value={email}
-        readOnly={isEdit}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <Field id="m-phone" label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-      {!isEdit && (
+    <Modal
+      open
+      onClose={onClose}
+      title={isEdit ? `Edit ${noun}` : `New ${noun}`}
+      size="lg"
+      footer={
+        <FormActions>
+          <Button type="button" variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="button" variant="primary" disabled={!canSave || pending} onClick={onSave}>
+            {pending ? 'Saving…' : 'Save'}
+          </Button>
+        </FormActions>
+      }
+    >
+      <FormGrid>
+        <Field id="m-name" label="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
         <Field
-          id="m-pw"
-          label="Temporary password"
-          type="password"
-          value={tempPassword}
-          onChange={(e) => setTempPassword(e.target.value)}
-          error={
-            tempPassword.length > 0 && tempPassword.length < 8 ? 'At least 8 characters' : undefined
-          }
+          id="m-email"
+          label="Email"
+          type="email"
+          value={email}
+          readOnly={isEdit}
+          onChange={(e) => setEmail(e.target.value)}
         />
-      )}
-
-      <div className="mt-4 flex justify-end gap-3">
-        <Button type="button" variant="ghost" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button type="button" variant="primary" disabled={!canSave || pending} onClick={onSave}>
-          {pending ? 'Saving…' : 'Save'}
-        </Button>
-      </div>
+        <Field id="m-phone" label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        {!isEdit && (
+          <Field
+            id="m-pw"
+            label="Temporary password"
+            type="password"
+            value={tempPassword}
+            onChange={(e) => setTempPassword(e.target.value)}
+            error={
+              tempPassword.length > 0 && tempPassword.length < 8 ? 'At least 8 characters' : undefined
+            }
+          />
+        )}
+      </FormGrid>
     </Modal>
   )
 }

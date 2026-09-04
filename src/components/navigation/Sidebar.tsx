@@ -13,7 +13,7 @@ export function Sidebar() {
       <NavLink
         to={ROUTES.home}
         aria-label="Home"
-        className="mb-6 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-neo-primary)] to-[#8b5cf6] text-white shadow-lg"
+        className="mb-6 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-neo-primary)] to-[var(--color-neo-primary-2)] text-white shadow-lg"
       >
         <Package size={18} />
       </NavLink>

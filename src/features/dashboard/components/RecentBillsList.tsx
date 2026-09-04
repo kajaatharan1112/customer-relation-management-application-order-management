@@ -25,7 +25,7 @@ export function RecentBillsList({
         >
           <span
             className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[11px] text-white"
-            style={{ background: `linear-gradient(135deg, ${BUCKET_COLOR[bucketOf(b.statusKey)]}, #8b5cf6)` }}
+            style={{ background: `linear-gradient(135deg, ${BUCKET_COLOR[bucketOf(b.statusKey)]}, var(--color-neo-primary-2))` }}
           >
             <FileText size={17} />
           </span>

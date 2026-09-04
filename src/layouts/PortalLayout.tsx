@@ -11,7 +11,7 @@ export function PortalLayout() {
     <div className="flex min-h-dvh flex-col bg-[var(--color-neo-bg)]">
       <header className="flex h-[64px] items-center justify-between border-b border-white/10 bg-[var(--color-neo-text-primary)] px-5">
         <div className="flex items-center gap-2 text-white">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--color-neo-primary)] to-[#8b5cf6]">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--color-neo-primary)] to-[var(--color-neo-primary-2)]">
             <Package size={16} />
           </span>
           <span className="text-base font-bold tracking-tight">{APP_NAME}</span>

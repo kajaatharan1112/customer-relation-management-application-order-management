@@ -8,6 +8,7 @@ const mk = (t: AppProfile['userType']): AppProfile => ({
   fullName: '',
   email: '',
   status: 'active',
+  themeColor: 'indigo',
 })
 
 describe('permissions', () => {

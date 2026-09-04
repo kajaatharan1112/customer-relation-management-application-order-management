@@ -1,5 +1,4 @@
-import { LogOut } from 'lucide-react'
-import { authService } from '@/core/auth/auth.service'
+import { ProfileMenu } from '@/features/profile/components/ProfileMenu'
 
 interface TopBarProps {
   title: string
@@ -8,19 +7,9 @@ interface TopBarProps {
 
 export function TopBar({ title, withSidebarOffset = false }: TopBarProps) {
   return (
-    <header
-      className={cnHeader(withSidebarOffset)}
-    >
+    <header className={cnHeader(withSidebarOffset)}>
       <h2 className="text-base font-bold tracking-tight text-white">{title}</h2>
-      <button
-        type="button"
-        onClick={() => authService.signOut()}
-        title="Sign out"
-        aria-label="Sign out"
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-[var(--color-neo-danger)]"
-      >
-        <LogOut size={17} />
-      </button>
+      <ProfileMenu />
     </header>
   )
 }

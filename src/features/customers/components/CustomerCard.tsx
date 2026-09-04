@@ -32,7 +32,7 @@ export function CustomerCard({ customer, onEdit, onDelete, finance }: CustomerCa
       <div className="flex items-center gap-3 p-4">
         <span
           className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-          style={{ background: 'linear-gradient(135deg, var(--color-neo-primary), #8b5cf6)' }}
+          style={{ background: 'linear-gradient(135deg, var(--color-neo-primary), var(--color-neo-primary-2))' }}
         >
           {initials(c.fullName)}
         </span>

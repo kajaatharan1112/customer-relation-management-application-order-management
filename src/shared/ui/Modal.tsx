@@ -9,9 +9,13 @@ export interface ModalProps {
   title?: string
   children: ReactNode
   className?: string
+  /** `sm` (default) keeps the old narrow box; `lg` is the wide two-column form frame. */
+  size?: 'sm' | 'lg'
+  /** Pinned footer region — typically a <FormActions> row. */
+  footer?: ReactNode
 }
 
-export function Modal({ open, onClose, title, children, className }: ModalProps) {
+export function Modal({ open, onClose, title, children, className, size = 'sm', footer }: ModalProps) {
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
@@ -20,6 +24,8 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
+
+  const width = size === 'lg' ? 'max-w-[920px]' : 'max-w-lg'
 
   return createPortal(
     <AnimatePresence>
@@ -36,7 +42,8 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
             aria-modal="true"
             aria-label={title}
             className={cn(
-              'w-full max-w-lg rounded-[var(--radius-neo-large)] bg-[var(--color-neo-card)] p-6 shadow-[var(--shadow-neo-floating)]',
+              'flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-[var(--radius-neo-large)] bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-floating)] md:max-h-[85vh]',
+              width,
               className,
             )}
             initial={{ scale: 0.96, y: 8 }}
@@ -45,9 +52,21 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
             onClick={(e) => e.stopPropagation()}
           >
             {title && (
-              <h2 className="mb-4 text-lg font-bold text-[var(--color-neo-text-primary)]">{title}</h2>
+              <h2 className="shrink-0 px-6 pt-6 pb-4 text-lg font-bold text-[var(--color-neo-text-primary)]">
+                {title}
+              </h2>
             )}
-            {children}
+            <div
+              data-modal-body
+              className={cn('min-h-0 flex-1 overflow-y-auto px-6 pb-6', !title && 'pt-6')}
+            >
+              {children}
+            </div>
+            {footer && (
+              <div className="shrink-0 border-t border-black/5 bg-[var(--color-neo-card)] px-6 py-4">
+                {footer}
+              </div>
+            )}
           </motion.div>
         </motion.div>
       )}

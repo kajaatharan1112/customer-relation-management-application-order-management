@@ -30,7 +30,7 @@ export function BillCard({ bill, onOpen, onEdit, onDelete }: BillCardProps) {
       <div className="flex items-start gap-3 p-4">
         <span
           className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white"
-          style={{ background: `linear-gradient(135deg, ${accent}, #8b5cf6)` }}
+          style={{ background: `linear-gradient(135deg, ${accent}, var(--color-neo-primary-2))` }}
         >
           <Icon size={20} />
         </span>
