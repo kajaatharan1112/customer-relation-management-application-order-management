@@ -12,6 +12,27 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+    <script>
+      // Pre-paint accent — restores the user's saved colour before first paint
+      // to avoid a flash of the default. KEEP MAP IN SYNC with src/core/theme/accents.ts
+      (function () {
+        try {
+          var m = {
+            indigo: ['#5A7BFF', '#8B5CF6'], violet: ['#7C3AED', '#A855F7'],
+            blue: ['#2563EB', '#3B82F6'], teal: ['#0D9488', '#14B8A6'],
+            emerald: ['#059669', '#10B981'], amber: ['#B45309', '#D97706'],
+            rose: ['#E11D48', '#F43F5E'], red: ['#DC2626', '#EF4444'],
+            graphite: ['#4B5563', '#6B7280'], black: ['#1F2937', '#374151']
+          };
+          var k = localStorage.getItem('onevo.accent');
+          if (k && m[k]) {
+            var r = document.documentElement.style;
+            r.setProperty('--color-neo-primary', m[k][0]);
+            r.setProperty('--color-neo-primary-2', m[k][1]);
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

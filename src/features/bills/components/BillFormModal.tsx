@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { Modal } from '@/shared/ui/Modal'
-import { Field } from '@/features/auth/authShared'
+import { Field } from '@/shared/ui/form/Field'
+import { Select } from '@/shared/ui/form/Select'
+import { FormGrid } from '@/shared/ui/form/FormGrid'
+import { FormActions } from '@/shared/ui/form/FormActions'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
 import { BillRowsEditor } from '@/features/bills/components/BillRowsEditor'
@@ -65,20 +68,35 @@ export function BillFormModal({
       open
       onClose={onClose}
       title={bill ? `Edit ${bill.billNumber}` : 'New bill'}
-      className="max-w-2xl"
+      size="lg"
+      footer={
+        <FormActions>
+          <Button type="button" variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            disabled={!canSave || save.isPending}
+            onClick={onSave}
+          >
+            {save.isPending ? 'Saving…' : 'Save'}
+          </Button>
+        </FormActions>
+      }
     >
-      <div className="mb-4">
-        <label
-          htmlFor="bill-customer"
-          className="mb-1.5 block text-sm font-medium text-[var(--color-neo-text-primary)]"
-        >
-          Customer
-        </label>
-        <select
+      <FormGrid>
+        <Select
           id="bill-customer"
+          label="Customer"
+          full
           value={customerId}
           onChange={(e) => setCustomerId(e.target.value)}
-          className="h-10 w-full rounded-[var(--radius-neo-sm)] bg-[var(--color-neo-bg)] px-3 text-sm shadow-[var(--shadow-neo-pressed)]"
+          error={
+            customers.length === 0
+              ? 'No customers yet — add one on the Customers page first.'
+              : undefined
+          }
         >
           <option value="">Select a customer…</option>
           {customers.map((c) => (
@@ -87,15 +105,8 @@ export function BillFormModal({
               {c.companyName ? ` · ${c.companyName}` : ''}
             </option>
           ))}
-        </select>
-        {customers.length === 0 && (
-          <p className="mt-1 text-xs text-[var(--color-neo-text-secondary)]">
-            No customers yet — add one on the Customers page first.
-          </p>
-        )}
-      </div>
+        </Select>
 
-      <div className="flex gap-3">
         <Field
           id="bill-order-date"
           label="Order date"
@@ -110,28 +121,17 @@ export function BillFormModal({
           value={deadline}
           onChange={(e) => setDeadline(e.target.value)}
         />
-      </div>
-      <Field
-        id="bill-notes"
-        label="Notes (optional)"
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-      />
+        <Field
+          id="bill-notes"
+          label="Notes (optional)"
+          full
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
+      </FormGrid>
 
-      <BillRowsEditor rows={rows} orderTypes={orderTypes} onChange={setRows} />
-
-      <div className="mt-6 flex justify-end gap-3">
-        <Button type="button" variant="ghost" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button
-          type="button"
-          variant="primary"
-          disabled={!canSave || save.isPending}
-          onClick={onSave}
-        >
-          {save.isPending ? 'Saving…' : 'Save'}
-        </Button>
+      <div className="mt-4">
+        <BillRowsEditor rows={rows} orderTypes={orderTypes} onChange={setRows} />
       </div>
     </Modal>
   )

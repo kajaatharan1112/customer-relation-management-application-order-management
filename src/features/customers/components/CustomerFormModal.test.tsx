@@ -49,4 +49,13 @@ describe('CustomerFormModal', () => {
     expect(screen.queryByLabelText(/temporary password/i)).not.toBeInTheDocument()
     expect(screen.getByLabelText(/^email/i)).toHaveAttribute('readonly')
   })
+
+  it('lays out wide: address and notes span both columns', () => {
+    render(<CustomerFormModal onClose={() => {}} />)
+    expect(screen.getByLabelText(/address/i).closest('[data-field]')).toHaveClass('md:col-span-2')
+    expect(screen.getByLabelText(/notes/i).closest('[data-field]')).toHaveClass('md:col-span-2')
+    expect(screen.getByLabelText(/full name/i).closest('[data-field]')).not.toHaveClass(
+      'md:col-span-2',
+    )
+  })
 })

@@ -34,6 +34,13 @@ describe('MemberFormModal', () => {
     )
   })
 
+  it('renders fields on the two-column form grid', () => {
+    render(<MemberFormModal role="employee" onClose={() => {}} />)
+    expect(screen.getByLabelText(/full name/i).closest('[data-field]')?.parentElement).toHaveClass(
+      'md:grid-cols-2',
+    )
+  })
+
   it('edit mode: no password field, email read-only, calls update', async () => {
     render(<MemberFormModal role="admin_member" member={member} onClose={() => {}} />)
     expect(screen.queryByLabelText(/temporary password/i)).not.toBeInTheDocument()

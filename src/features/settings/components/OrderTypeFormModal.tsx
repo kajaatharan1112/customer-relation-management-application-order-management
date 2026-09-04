@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { Modal } from '@/shared/ui/Modal'
-import { Field } from '@/features/auth/authShared'
+import { Field } from '@/shared/ui/form/Field'
+import { Select } from '@/shared/ui/form/Select'
+import { FormGrid } from '@/shared/ui/form/FormGrid'
+import { FormActions } from '@/shared/ui/form/FormActions'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
 import { useSaveOrderType } from '@/features/settings/mutations/useOrderTypeMutations'
@@ -42,21 +45,35 @@ export function OrderTypeFormModal({
   }
 
   return (
-    <Modal open onClose={onClose} title={orderType ? 'Edit order type' : 'Create order type'}>
-      <Field id="order-type-name" label="Name" value={name} onChange={(e) => setName(e.target.value)} />
+    <Modal
+      open
+      onClose={onClose}
+      title={orderType ? 'Edit order type' : 'Create order type'}
+      size="lg"
+      footer={
+        <FormActions>
+          <Button type="button" variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="button" variant="primary" disabled={!canSave || isPending} onClick={onSave}>
+            {isPending ? 'Saving…' : 'Save'}
+          </Button>
+        </FormActions>
+      }
+    >
+      <FormGrid>
+        <Field id="order-type-name" label="Name" value={name} onChange={(e) => setName(e.target.value)} />
 
-      <div className="mb-4">
-        <label
-          htmlFor="workflow-select"
-          className="mb-1.5 block text-sm font-medium text-[var(--color-neo-text-primary)]"
-        >
-          Workflow
-        </label>
-        <select
+        <Select
           id="workflow-select"
+          label="Workflow"
           value={workflowTemplateId}
           onChange={(e) => setWorkflowTemplateId(e.target.value)}
-          className="h-10 w-full rounded-[var(--radius-neo-sm)] bg-[var(--color-neo-bg)] px-3 text-sm text-[var(--color-neo-text-primary)] shadow-[var(--shadow-neo-pressed)]"
+          error={
+            activeWorkflows.length === 0
+              ? 'No active workflows yet — create one on the Workflows tab first.'
+              : undefined
+          }
         >
           <option value="">Select a workflow…</option>
           {activeWorkflows.map((w) => (
@@ -64,36 +81,22 @@ export function OrderTypeFormModal({
               {w.name}
             </option>
           ))}
-        </select>
-        {activeWorkflows.length === 0 && (
-          <p className="mt-1 text-xs text-[var(--color-neo-text-secondary)]">
-            No active workflows yet — create one on the Workflows tab first.
-          </p>
-        )}
-      </div>
+        </Select>
 
-      <Field
-        id="fixed-amount"
-        label="Fixed amount (optional)"
-        type="number"
-        min="0"
-        value={fixedAmount}
-        onChange={(e) => setFixedAmount(e.target.value)}
-      />
+        <Field
+          id="fixed-amount"
+          label="Fixed amount (optional)"
+          type="number"
+          min="0"
+          value={fixedAmount}
+          onChange={(e) => setFixedAmount(e.target.value)}
+        />
+      </FormGrid>
 
-      <label className="mb-4 flex items-center gap-2 text-sm text-[var(--color-neo-text-primary)]">
+      <label className="mt-4 flex items-center gap-2 text-sm text-[var(--color-neo-text-primary)]">
         <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
         Active
       </label>
-
-      <div className="mt-2 flex justify-end gap-3">
-        <Button type="button" variant="ghost" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button type="button" variant="primary" disabled={!canSave || isPending} onClick={onSave}>
-          {isPending ? 'Saving…' : 'Save'}
-        </Button>
-      </div>
     </Modal>
   )
 }

@@ -16,6 +16,13 @@ describe('WorkflowFormModal', () => {
     expect(screen.getByRole('button', { name: /save/i })).toBeDisabled()
   })
 
+  it('lays name and description on the two-column form grid', () => {
+    render(<WorkflowFormModal onClose={() => {}} />)
+    expect(
+      screen.getByLabelText(/workflow name/i).closest('[data-field]')?.parentElement,
+    ).toHaveClass('md:grid-cols-2')
+  })
+
   it('saves a valid workflow', async () => {
     render(<WorkflowFormModal onClose={() => {}} />)
     await userEvent.type(screen.getByLabelText(/workflow name/i), 'Printing')

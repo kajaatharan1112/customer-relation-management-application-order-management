@@ -18,6 +18,13 @@ describe('OrderTypeFormModal', () => {
     expect(screen.getByRole('button', { name: /save/i })).toBeDisabled()
   })
 
+  it('renders fields on the two-column form grid', () => {
+    render(<OrderTypeFormModal workflows={workflows} onClose={() => {}} />)
+    expect(screen.getByLabelText(/name/i).closest('[data-field]')?.parentElement).toHaveClass(
+      'md:grid-cols-2',
+    )
+  })
+
   it('saves with the picked workflow and optional amount', async () => {
     render(<OrderTypeFormModal workflows={workflows} onClose={() => {}} />)
     await userEvent.type(screen.getByLabelText(/name/i), 'Paper Printing')

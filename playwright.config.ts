@@ -1,7 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const PORT = 5199
-const BASE_URL = `http://localhost:${PORT}`
+// The Vite dev server runs over HTTPS (basicSsl plugin), self-signed cert.
+const BASE_URL = `https://localhost:${PORT}`
 
 export default defineConfig({
   testDir: './e2e',
@@ -16,6 +17,7 @@ export default defineConfig({
 
   use: {
     baseURL: BASE_URL,
+    ignoreHTTPSErrors: true,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
@@ -32,6 +34,7 @@ export default defineConfig({
   webServer: {
     command: `npm run dev -- --port ${PORT} --strictPort`,
     url: BASE_URL,
+    ignoreHTTPSErrors: true,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
   },

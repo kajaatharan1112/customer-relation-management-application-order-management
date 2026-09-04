@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Modal } from '@/shared/ui/Modal'
-import { Field } from '@/features/auth/authShared'
+import { Field } from '@/shared/ui/form/Field'
+import { FormGrid } from '@/shared/ui/form/FormGrid'
+import { FormActions } from '@/shared/ui/form/FormActions'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
 import { StageEditor } from '@/features/settings/components/StageEditor'
@@ -44,28 +46,39 @@ export function WorkflowFormModal({
   }
 
   return (
-    <Modal open onClose={onClose} title={template ? 'Edit workflow' : 'Create workflow'}>
-      <Field id="workflow-name" label="Workflow name" value={name} onChange={(e) => setName(e.target.value)} />
-      <Field
-        id="workflow-description"
-        label="Description (optional)"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <label className="mb-4 flex items-center gap-2 text-sm text-[var(--color-neo-text-primary)]">
+    <Modal
+      open
+      onClose={onClose}
+      title={template ? 'Edit workflow' : 'Create workflow'}
+      size="lg"
+      footer={
+        <FormActions>
+          <Button type="button" variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="button" variant="primary" disabled={!canSave || isPending} onClick={onSave}>
+            {isPending ? 'Saving…' : 'Save'}
+          </Button>
+        </FormActions>
+      }
+    >
+      <FormGrid>
+        <Field id="workflow-name" label="Workflow name" value={name} onChange={(e) => setName(e.target.value)} />
+        <Field
+          id="workflow-description"
+          label="Description (optional)"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </FormGrid>
+
+      <label className="mt-4 flex items-center gap-2 text-sm text-[var(--color-neo-text-primary)]">
         <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
         Active
       </label>
 
-      <StageEditor stages={stages} onChange={setStages} />
-
-      <div className="mt-6 flex justify-end gap-3">
-        <Button type="button" variant="ghost" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button type="button" variant="primary" disabled={!canSave || isPending} onClick={onSave}>
-          {isPending ? 'Saving…' : 'Save'}
-        </Button>
+      <div className="mt-4">
+        <StageEditor stages={stages} onChange={setStages} />
       </div>
     </Modal>
   )

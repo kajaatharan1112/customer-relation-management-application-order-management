@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Modal } from '@/shared/ui/Modal'
-import { Field } from '@/features/auth/authShared'
+import { Field } from '@/shared/ui/form/Field'
+import { FormGrid } from '@/shared/ui/form/FormGrid'
+import { FormActions } from '@/shared/ui/form/FormActions'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
 import {
@@ -70,52 +72,67 @@ export function CustomerFormModal({
   }
 
   return (
-    <Modal open onClose={onClose} title={isEdit ? 'Edit customer' : 'Add customer'}>
-      <Field id="c-name" label="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-      <Field
-        id="c-email"
-        label="Email"
-        type="email"
-        value={email}
-        readOnly={isEdit}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <Field id="c-phone" label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-      {!isEdit && (
+    <Modal
+      open
+      onClose={onClose}
+      title={isEdit ? 'Edit customer' : 'Add customer'}
+      size="lg"
+      footer={
+        <FormActions>
+          <Button type="button" variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="button" variant="primary" disabled={!canSave || pending} onClick={onSave}>
+            {pending ? 'Saving…' : 'Save'}
+          </Button>
+        </FormActions>
+      }
+    >
+      <FormGrid>
+        <Field id="c-name" label="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
         <Field
-          id="c-pw"
-          label="Temporary password"
-          type="password"
-          value={tempPassword}
-          onChange={(e) => setTempPassword(e.target.value)}
-          error={
-            tempPassword.length > 0 && tempPassword.length < 8 ? 'At least 8 characters' : undefined
-          }
+          id="c-email"
+          label="Email"
+          type="email"
+          value={email}
+          readOnly={isEdit}
+          onChange={(e) => setEmail(e.target.value)}
         />
-      )}
-      <Field
-        id="c-company"
-        label="Company (optional)"
-        value={companyName}
-        onChange={(e) => setCompanyName(e.target.value)}
-      />
-      <Field
-        id="c-addr"
-        label="Address (optional)"
-        value={addressLine}
-        onChange={(e) => setAddressLine(e.target.value)}
-      />
-      <Field id="c-city" label="City (optional)" value={city} onChange={(e) => setCity(e.target.value)} />
-      <Field id="c-notes" label="Notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} />
-
-      <div className="mt-4 flex justify-end gap-3">
-        <Button type="button" variant="ghost" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button type="button" variant="primary" disabled={!canSave || pending} onClick={onSave}>
-          {pending ? 'Saving…' : 'Save'}
-        </Button>
-      </div>
+        <Field id="c-phone" label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <Field
+          id="c-company"
+          label="Company (optional)"
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
+        />
+        <Field
+          id="c-addr"
+          label="Address (optional)"
+          full
+          value={addressLine}
+          onChange={(e) => setAddressLine(e.target.value)}
+        />
+        <Field id="c-city" label="City (optional)" value={city} onChange={(e) => setCity(e.target.value)} />
+        {!isEdit && (
+          <Field
+            id="c-pw"
+            label="Temporary password"
+            type="password"
+            value={tempPassword}
+            onChange={(e) => setTempPassword(e.target.value)}
+            error={
+              tempPassword.length > 0 && tempPassword.length < 8 ? 'At least 8 characters' : undefined
+            }
+          />
+        )}
+        <Field
+          id="c-notes"
+          label="Notes (optional)"
+          full
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
+      </FormGrid>
     </Modal>
   )
 }

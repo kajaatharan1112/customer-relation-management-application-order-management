@@ -673,6 +673,7 @@ export type Database = {
           id: string
           phone: string | null
           status: string
+          theme_color: string
           updated_at: string
           user_type_id: string
         }
@@ -685,6 +686,7 @@ export type Database = {
           id: string
           phone?: string | null
           status?: string
+          theme_color?: string
           updated_at?: string
           user_type_id: string
         }
@@ -697,6 +699,7 @@ export type Database = {
           id?: string
           phone?: string | null
           status?: string
+          theme_color?: string
           updated_at?: string
           user_type_id?: string
         }
