@@ -31,14 +31,12 @@ export default function RegisterPage() {
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
   const onSendOtp = async () => {
-    const valid = await trigger(['fullName', 'email', 'password'])
+    const valid = await trigger(['fullName', 'email'])
     if (!valid) return
 
     setSendingOtp(true)
-    const { fullName, email, password } = getValues()
-    const { error } = otpSent
-      ? await authService.resendSignupOtp(email)
-      : await authService.signUpWithPassword(email, password, fullName)
+    const { fullName, email } = getValues()
+    const { error } = await authService.sendSignupOtp(email, fullName)
     setSendingOtp(false)
 
     if (error) {
@@ -50,10 +48,14 @@ export default function RegisterPage() {
   }
 
   const onSubmit = async (values: FormValues) => {
-    const { error } = await authService.verifyEmailOtp(values.email, values.otp, 'signup')
+    const { error } = await authService.verifyEmailOtp(values.email, values.otp, 'email')
     if (error) {
       show({ type: 'error', title: 'Could not verify code', message: error.message })
       return
+    }
+    const { error: pwError } = await authService.updatePassword(values.password)
+    if (pwError) {
+      show({ type: 'error', title: 'Signed in, but could not set password', message: pwError.message })
     }
     navigate(ROUTES.dashboard, { replace: true })
   }
@@ -104,7 +106,6 @@ export default function RegisterPage() {
           label="Password"
           type="password"
           autoComplete="new-password"
-          disabled={otpSent}
           error={errors.password?.message}
           {...register('password')}
         />

@@ -242,7 +242,7 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
-[auth.email.template.confirmation]
+[auth.email.template.magic_link]
 subject = "Confirm your email"
 content_path = "./supabase/templates/confirm_signup.html"
 

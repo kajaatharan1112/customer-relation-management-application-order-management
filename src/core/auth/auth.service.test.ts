@@ -3,12 +3,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const h = vi.hoisted(() => ({
   signInWithPassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
   signInWithOAuth: vi.fn().mockResolvedValue({ data: {}, error: null }),
-  signUp: vi.fn().mockResolvedValue({ data: {}, error: null }),
+  signInWithOtp: vi.fn().mockResolvedValue({ data: {}, error: null }),
   resetPasswordForEmail: vi.fn().mockResolvedValue({ data: {}, error: null }),
   updateUser: vi.fn().mockResolvedValue({ data: {}, error: null }),
   signOut: vi.fn().mockResolvedValue({ error: null }),
   verifyOtp: vi.fn().mockResolvedValue({ data: {}, error: null }),
-  resend: vi.fn().mockResolvedValue({ data: {}, error: null }),
 }))
 
 vi.mock('@/core/supabase/client', () => ({
@@ -33,15 +32,11 @@ describe('authService', () => {
     })
   })
 
-  it('signUpWithPassword sends full name, customer type, and a callback redirect', async () => {
-    await authService.signUpWithPassword('jane@roe.com', 'secret123', 'Jane Roe')
-    expect(h.signUp).toHaveBeenCalledWith({
+  it('sendSignupOtp requests a code with no password, creating the user if needed', async () => {
+    await authService.sendSignupOtp('jane@roe.com', 'Jane Roe')
+    expect(h.signInWithOtp).toHaveBeenCalledWith({
       email: 'jane@roe.com',
-      password: 'secret123',
-      options: {
-        data: { full_name: 'Jane Roe', user_type: 'customer' },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+      options: { shouldCreateUser: true, data: { full_name: 'Jane Roe' } },
     })
   })
 
@@ -63,17 +58,12 @@ describe('authService', () => {
   })
 
   it('verifyEmailOtp forwards email, token, and type', async () => {
-    await authService.verifyEmailOtp('jane@roe.com', '123456', 'signup')
-    expect(h.verifyOtp).toHaveBeenCalledWith({ email: 'jane@roe.com', token: '123456', type: 'signup' })
+    await authService.verifyEmailOtp('jane@roe.com', '123456', 'email')
+    expect(h.verifyOtp).toHaveBeenCalledWith({ email: 'jane@roe.com', token: '123456', type: 'email' })
   })
 
   it('verifyEmailOtp supports the invite type', async () => {
     await authService.verifyEmailOtp('jane@roe.com', '654321', 'invite')
     expect(h.verifyOtp).toHaveBeenCalledWith({ email: 'jane@roe.com', token: '654321', type: 'invite' })
-  })
-
-  it('resendSignupOtp requests a new signup code', async () => {
-    await authService.resendSignupOtp('jane@roe.com')
-    expect(h.resend).toHaveBeenCalledWith({ type: 'signup', email: 'jane@roe.com' })
   })
 })

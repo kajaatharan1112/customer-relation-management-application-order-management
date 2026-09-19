@@ -3,13 +3,13 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 
-const { signUpWithPassword, resendSignupOtp, verifyEmailOtp } = vi.hoisted(() => ({
-  signUpWithPassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
-  resendSignupOtp: vi.fn().mockResolvedValue({ data: {}, error: null }),
+const { sendSignupOtp, verifyEmailOtp, updatePassword } = vi.hoisted(() => ({
+  sendSignupOtp: vi.fn().mockResolvedValue({ data: {}, error: null }),
   verifyEmailOtp: vi.fn().mockResolvedValue({ data: {}, error: null }),
+  updatePassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
 }))
 vi.mock('@/core/auth/auth.service', () => ({
-  authService: { signUpWithPassword, resendSignupOtp, verifyEmailOtp, signInWithGoogle: vi.fn() },
+  authService: { sendSignupOtp, verifyEmailOtp, updatePassword, signInWithGoogle: vi.fn() },
 }))
 vi.mock('@/app/providers/AuthProvider', () => ({
   useAuth: () => ({ session: null, profile: null, loading: false }),
@@ -31,10 +31,9 @@ function renderPage() {
   )
 }
 
-async function fillBaseFields() {
+async function fillNameAndEmail() {
   await userEvent.type(screen.getByLabelText(/full name/i), 'Jane Roe')
   await userEvent.type(screen.getByLabelText(/^email/i), 'jane@roe.com')
-  await userEvent.type(screen.getByLabelText(/^password/i), 'secret123')
 }
 
 describe('RegisterPage', () => {
@@ -46,39 +45,40 @@ describe('RegisterPage', () => {
     expect(screen.getByRole('button', { name: /create account/i })).toBeDisabled()
   })
 
-  it('Send OTP signs up with the form values and reveals the code field', async () => {
+  it('Send OTP needs only name + email, not password, and reveals the code field', async () => {
     renderPage()
-    await fillBaseFields()
+    await fillNameAndEmail()
     await userEvent.click(screen.getByRole('button', { name: /send otp/i }))
-    expect(signUpWithPassword).toHaveBeenCalledWith('jane@roe.com', 'secret123', 'Jane Roe')
+    expect(sendSignupOtp).toHaveBeenCalledWith('jane@roe.com', 'Jane Roe')
     expect(await screen.findByLabelText(/6-digit code/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /create account/i })).toBeEnabled()
   })
 
-  it('does not send OTP when required fields are missing', async () => {
+  it('does not send OTP when name/email are missing', async () => {
     renderPage()
     await userEvent.click(screen.getByRole('button', { name: /send otp/i }))
-    expect(signUpWithPassword).not.toHaveBeenCalled()
+    expect(sendSignupOtp).not.toHaveBeenCalled()
     expect(screen.queryByLabelText(/6-digit code/i)).not.toBeInTheDocument()
   })
 
-  it('clicking Send OTP again resends instead of signing up a second time', async () => {
+  it('clicking Send OTP again resends without erroring', async () => {
     renderPage()
-    await fillBaseFields()
+    await fillNameAndEmail()
     await userEvent.click(screen.getByRole('button', { name: /send otp/i }))
     await screen.findByLabelText(/6-digit code/i)
     await userEvent.click(screen.getByRole('button', { name: /resend otp/i }))
-    expect(resendSignupOtp).toHaveBeenCalledWith('jane@roe.com')
-    expect(signUpWithPassword).toHaveBeenCalledTimes(1)
+    expect(sendSignupOtp).toHaveBeenCalledTimes(2)
   })
 
-  it('submitting the code verifies it and routes into the app', async () => {
+  it('submitting the code verifies it, sets the password, and routes into the app', async () => {
     renderPage()
-    await fillBaseFields()
+    await fillNameAndEmail()
     await userEvent.click(screen.getByRole('button', { name: /send otp/i }))
+    await userEvent.type(screen.getByLabelText(/^password/i), 'secret123')
     await userEvent.type(await screen.findByLabelText(/6-digit code/i), '123456')
     await userEvent.click(screen.getByRole('button', { name: /create account/i }))
-    expect(verifyEmailOtp).toHaveBeenCalledWith('jane@roe.com', '123456', 'signup')
+    expect(verifyEmailOtp).toHaveBeenCalledWith('jane@roe.com', '123456', 'email')
+    expect(updatePassword).toHaveBeenCalledWith('secret123')
     expect(await screen.findByText('dashboard screen')).toBeInTheDocument()
   })
 })
