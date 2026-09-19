@@ -27,5 +27,12 @@ export const authService = {
 
   updatePassword: (password: string) => supabase.auth.updateUser({ password }),
 
+  /** Confirms the 6-digit code emailed for a self-signup or an admin invite. */
+  verifyEmailOtp: (email: string, token: string, type: 'signup' | 'invite') =>
+    supabase.auth.verifyOtp({ email, token, type }),
+
+  /** Re-sends the signup confirmation code (invite codes are re-sent by an admin). */
+  resendSignupOtp: (email: string) => supabase.auth.resend({ type: 'signup', email }),
+
   signOut: () => supabase.auth.signOut(),
 }

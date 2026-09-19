@@ -9,6 +9,7 @@ import LoginPage from '@/features/auth/LoginPage'
 import RegisterPage from '@/features/auth/RegisterPage'
 import ForgotPasswordPage from '@/features/auth/ForgotPasswordPage'
 import ResetPasswordPage from '@/features/auth/ResetPasswordPage'
+import VerifyOtpPage from '@/features/auth/VerifyOtpPage'
 import OAuthCallbackPage from '@/features/auth/OAuthCallbackPage'
 import DashboardPage from '@/features/dashboard/DashboardPage'
 import SalesPage from '@/features/dashboard/SalesPage'
@@ -31,6 +32,7 @@ export function AppRouter() {
           <Route path={ROUTES.register} element={<RegisterPage />} />
           <Route path={ROUTES.forgotPassword} element={<ForgotPasswordPage />} />
           <Route path={ROUTES.resetPassword} element={<ResetPasswordPage />} />
+          <Route path={ROUTES.verifyEmail} element={<VerifyOtpPage />} />
         </Route>
         <Route path={ROUTES.authCallback} element={<OAuthCallbackPage />} />
 

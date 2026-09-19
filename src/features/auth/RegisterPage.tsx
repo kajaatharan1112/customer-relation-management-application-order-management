@@ -30,8 +30,8 @@ export default function RegisterPage() {
       show({ type: 'error', title: 'Sign up failed', message: error.message })
       return
     }
-    show({ type: 'success', title: 'Check your email', message: 'Confirm your address to finish signing up.' })
-    navigate(ROUTES.login, { replace: true })
+    show({ type: 'info', title: 'Check your email', message: 'Enter the 6-digit code we sent you.' })
+    navigate(`${ROUTES.verifyEmail}?type=signup`, { replace: true, state: { email: values.email } })
   }
 
   return (

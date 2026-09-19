@@ -62,6 +62,9 @@ export default function LoginPage() {
         <div className="mt-2 text-right text-sm">
           <AuthLink to={ROUTES.forgotPassword}>Forgot password?</AuthLink>
         </div>
+        <div className="mt-1 text-right text-sm">
+          <AuthLink to={`${ROUTES.verifyEmail}?type=invite`}>Have an invite code?</AuthLink>
+        </div>
         <Button type="submit" variant="primary" fullWidth disabled={isSubmitting} className="mt-4">
           {isSubmitting ? 'Signing in…' : 'Sign in'}
         </Button>
