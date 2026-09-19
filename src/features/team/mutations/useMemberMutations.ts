@@ -15,7 +15,6 @@ export function useCreateMember() {
       email: string
       phone: string
       role: MemberRole
-      tempPassword: string
     }) => memberRepository.create(v),
     onSuccess: inv,
   })

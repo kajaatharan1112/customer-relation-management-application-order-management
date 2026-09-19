@@ -12,7 +12,6 @@ Deno.test('rejects missing auth', async () => {
       email: 'x@y.z',
       full_name: 'X',
       user_type: 'customer',
-      temp_password: 'secret123',
     }),
   })
   assertEquals(res.status, 401)
@@ -32,7 +31,6 @@ Deno.test('rejects a non-admin caller', async () => {
       email: 'x@y.z',
       full_name: 'X',
       user_type: 'customer',
-      temp_password: 'secret123',
     }),
   })
   assertEquals(res.status, 403)

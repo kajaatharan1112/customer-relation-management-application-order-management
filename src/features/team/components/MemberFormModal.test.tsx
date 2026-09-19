@@ -20,17 +20,17 @@ const member = {
 }
 
 describe('MemberFormModal', () => {
-  it('add mode: disabled until name + valid email + password(>=8); creates with the role', async () => {
+  it('add mode: disabled until name + valid email; creates with the role, no password field', async () => {
     render(<MemberFormModal role="employee" onClose={() => {}} />)
+    expect(screen.queryByLabelText(/temporary password/i)).not.toBeInTheDocument()
     const save = screen.getByRole('button', { name: /save/i })
     expect(save).toBeDisabled()
     await userEvent.type(screen.getByLabelText(/full name/i), 'Sam')
     await userEvent.type(screen.getByLabelText(/^email/i), 'sam@x.co')
-    await userEvent.type(screen.getByLabelText(/temporary password/i), 'secret123')
     expect(save).toBeEnabled()
     await userEvent.click(save)
     expect(h.create).toHaveBeenCalledWith(
-      expect.objectContaining({ fullName: 'Sam', email: 'sam@x.co', role: 'employee', tempPassword: 'secret123' }),
+      expect.objectContaining({ fullName: 'Sam', email: 'sam@x.co', role: 'employee' }),
     )
   })
 

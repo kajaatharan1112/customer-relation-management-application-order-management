@@ -42,7 +42,6 @@ export const memberRepository = {
     email: string
     phone: string
     role: MemberRole
-    tempPassword: string
   }): Promise<void> {
     const { error } = await supabase.functions.invoke('admin-create-user', {
       body: {
@@ -50,7 +49,7 @@ export const memberRepository = {
         full_name: input.fullName,
         phone: input.phone,
         user_type: input.role,
-        temp_password: input.tempPassword,
+        redirect_to: `${window.location.origin}/reset-password`,
       },
     })
     if (error) throw error

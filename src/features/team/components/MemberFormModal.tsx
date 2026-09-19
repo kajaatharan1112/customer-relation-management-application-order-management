@@ -24,27 +24,25 @@ export function MemberFormModal({ role, member, onClose }: MemberFormModalProps)
   const [fullName, setFullName] = useState(member?.fullName ?? '')
   const [email, setEmail] = useState(member?.email ?? '')
   const [phone, setPhone] = useState(member?.phone ?? '')
-  const [tempPassword, setTempPassword] = useState('')
 
   const create = useCreateMember()
   const update = useUpdateMember()
   const { show } = useToast()
   const pending = create.isPending || update.isPending
 
-  const canSave =
-    fullName.trim().length > 0 && EMAIL_RE.test(email) && (isEdit || tempPassword.length >= 8)
+  const canSave = fullName.trim().length > 0 && EMAIL_RE.test(email)
 
   const onSave = async () => {
     try {
       if (isEdit) {
         await update.mutateAsync({ profileId: member!.profileId, fullName, phone })
       } else {
-        await create.mutateAsync({ fullName, email, phone, role, tempPassword })
+        await create.mutateAsync({ fullName, email, phone, role })
       }
       show({
         type: 'success',
         title: isEdit ? `${MEMBER_ROLE_LABEL[role]} updated` : `${MEMBER_ROLE_LABEL[role]} added`,
-        message: isEdit ? undefined : 'Share the temporary password with them.',
+        message: isEdit ? undefined : `Invite email sent to ${email}.`,
       })
       onClose()
     } catch (err) {
@@ -80,18 +78,6 @@ export function MemberFormModal({ role, member, onClose }: MemberFormModalProps)
           onChange={(e) => setEmail(e.target.value)}
         />
         <Field id="m-phone" label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-        {!isEdit && (
-          <Field
-            id="m-pw"
-            label="Temporary password"
-            type="password"
-            value={tempPassword}
-            onChange={(e) => setTempPassword(e.target.value)}
-            error={
-              tempPassword.length > 0 && tempPassword.length < 8 ? 'At least 8 characters' : undefined
-            }
-          />
-        )}
       </FormGrid>
     </Modal>
   )

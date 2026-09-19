@@ -13,9 +13,9 @@
   --color-neo-text-primary: #2B2D42;
   --color-neo-text-secondary: #68768A;
 
-  --shadow-neo-soft: -8px -8px 16px rgba(255,255,255,0.9), 8px 8px 18px rgba(163,177,198,0.55);
-  --shadow-neo-pressed: inset -4px -4px 8px rgba(255,255,255,0.9), inset 4px 4px 10px rgba(163,177,198,0.5);
-  --shadow-neo-floating: -16px -16px 30px rgba(255,255,255,0.8), 16px 16px 32px rgba(163,177,198,0.4);
+  --shadow-neo-soft: -3px -3px 8px rgba(255,255,255,0.6), 3px 3px 8px rgba(163,177,198,0.35);
+  --shadow-neo-pressed: inset -2px -2px 4px rgba(255,255,255,0.6), inset 2px 2px 5px rgba(163,177,198,0.3);
+  --shadow-neo-floating: -6px -6px 14px rgba(255,255,255,0.5), 6px 6px 16px rgba(163,177,198,0.25);
 
   --radius-neo-sm: 10px;
   --radius-neo-md: 15px;

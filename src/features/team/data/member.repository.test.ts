@@ -42,10 +42,16 @@ describe('memberRepository', () => {
     expect(out[1]).toMatchObject({ profileId: 'u2', isSelf: false, phone: '77' })
   })
 
-  it('create posts the admin-create-user body with the role', async () => {
-    await memberRepository.create({ fullName: 'Sam', email: 's@x.co', phone: '1', role: 'employee', tempPassword: 'secret123' })
+  it('create posts the admin-create-user body with the role and a redirect', async () => {
+    await memberRepository.create({ fullName: 'Sam', email: 's@x.co', phone: '1', role: 'employee' })
     expect(h.invoke).toHaveBeenCalledWith('admin-create-user', {
-      body: { email: 's@x.co', full_name: 'Sam', phone: '1', user_type: 'employee', temp_password: 'secret123' },
+      body: {
+        email: 's@x.co',
+        full_name: 'Sam',
+        phone: '1',
+        user_type: 'employee',
+        redirect_to: `${window.location.origin}/reset-password`,
+      },
     })
   })
 

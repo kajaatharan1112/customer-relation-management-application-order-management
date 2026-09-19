@@ -54,12 +54,11 @@ describe('customerRepository', () => {
     ])
   })
 
-  it('createWithLogin invokes the edge function then updates detail', async () => {
+  it('createWithLogin invokes the edge function with a redirect, then updates detail', async () => {
     await customerRepository.createWithLogin({
       fullName: 'New Person',
       email: 'np@x.co',
       phone: '9',
-      tempPassword: 'secret123',
       companyName: 'Co',
       addressLine: null,
       city: null,
@@ -71,7 +70,7 @@ describe('customerRepository', () => {
         full_name: 'New Person',
         phone: '9',
         user_type: 'customer',
-        temp_password: 'secret123',
+        redirect_to: `${window.location.origin}/reset-password`,
       },
     })
   })

@@ -1,5 +1,6 @@
-// admin-create-user — an authenticated admin_member creates a new user with a
-// temporary password. Runs with the service role; verifies the caller first.
+// admin-create-user — an authenticated admin_member creates a new user and
+// Supabase emails them an invite link to set their own password. Runs with
+// the service role; verifies the caller first.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const cors = {
@@ -53,9 +54,9 @@ Deno.serve(async (req) => {
   const fullName = String(body.full_name ?? '')
   const phone = body.phone == null ? null : String(body.phone)
   const userType = String(body.user_type ?? '')
-  const tempPassword = String(body.temp_password ?? '')
+  const redirectTo = body.redirect_to == null ? undefined : String(body.redirect_to)
 
-  if (!email || !fullName || !userType || !tempPassword) {
+  if (!email || !fullName || !userType) {
     return json({ error: 'missing fields' }, 400)
   }
   if (!['admin_member', 'employee', 'customer'].includes(userType)) {
@@ -63,16 +64,14 @@ Deno.serve(async (req) => {
   }
 
   const admin = createClient(url, service)
-  const { data: created, error: cErr } = await admin.auth.admin.createUser({
-    email,
-    password: tempPassword,
-    email_confirm: true,
-    user_metadata: {
+  const { data: created, error: cErr } = await admin.auth.admin.inviteUserByEmail(email, {
+    data: {
       user_type: userType,
       full_name: fullName,
       phone,
       created_by: userData.user.id,
     },
+    redirectTo,
   })
   if (cErr || !created.user) {
     return json({ error: cErr?.message ?? 'create failed' }, 400)

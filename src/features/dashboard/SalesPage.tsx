@@ -32,7 +32,6 @@ export default function SalesPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-[var(--color-neo-text-primary)]">Sales &amp; turnover</h1>
-          <p className="text-sm text-[var(--color-neo-text-secondary)]">Billed value across every order — daily, monthly and yearly.</p>
         </div>
         <span className="flex items-center gap-2 rounded-[var(--radius-neo-pill)] bg-[var(--color-neo-bg)] px-3.5 py-2 text-xs font-semibold text-[var(--color-neo-text-secondary)] shadow-[var(--shadow-neo-pressed)]">
           <Calendar size={14} />
@@ -41,10 +40,10 @@ export default function SalesPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="This month turnover" value={formatLKRShort(k.thisMonthTurnover)} icon={TrendingUp} deltaPct={k.momChangePct} spark={data.byMonth.map((d) => d.turnover)} sub={`vs ${formatLKRShort(k.lastMonthTurnover)} last month`} />
-        <StatCard label="Turnover YTD" value={formatLKRShort(k.ytdTurnover)} icon={Wallet} spark={data.byMonth.map((d) => d.turnover)} />
-        <StatCard label="Avg bill value" value={formatLKRShort(k.avgBillValue)} icon={Receipt} />
-        <StatCard label="Collection rate" value={`${Math.round(k.collectionRate * 100)}%`} icon={PieIcon} tone="success" sub={`${formatLKRShort(k.outstandingTotal)} outstanding`} />
+        <StatCard dense label="This month turnover" value={formatLKRShort(k.thisMonthTurnover)} icon={TrendingUp} deltaPct={k.momChangePct} spark={data.byMonth.map((d) => d.turnover)} sub={`vs ${formatLKRShort(k.lastMonthTurnover)} last month`} />
+        <StatCard dense label="Turnover YTD" value={formatLKRShort(k.ytdTurnover)} icon={Wallet} spark={data.byMonth.map((d) => d.turnover)} />
+        <StatCard dense label="Avg bill value" value={formatLKRShort(k.avgBillValue)} icon={Receipt} />
+        <StatCard dense label="Collection rate" value={`${Math.round(k.collectionRate * 100)}%`} icon={PieIcon} tone="success" sub={`${formatLKRShort(k.outstandingTotal)} outstanding`} />
       </div>
 
       <Card className="p-[22px]">

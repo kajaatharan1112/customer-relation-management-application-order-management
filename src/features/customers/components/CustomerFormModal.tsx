@@ -24,7 +24,6 @@ export function CustomerFormModal({
   const [fullName, setFullName] = useState(customer?.fullName ?? '')
   const [email, setEmail] = useState(customer?.email ?? '')
   const [phone, setPhone] = useState(customer?.phone ?? '')
-  const [tempPassword, setTempPassword] = useState('')
   const [companyName, setCompanyName] = useState(customer?.companyName ?? '')
   const [addressLine, setAddressLine] = useState(customer?.addressLine ?? '')
   const [city, setCity] = useState(customer?.city ?? '')
@@ -35,8 +34,7 @@ export function CustomerFormModal({
   const { show } = useToast()
   const pending = create.isPending || update.isPending
 
-  const canSave =
-    fullName.trim().length > 0 && EMAIL_RE.test(email) && (isEdit || tempPassword.length >= 8)
+  const canSave = fullName.trim().length > 0 && EMAIL_RE.test(email)
 
   const onSave = async () => {
     try {
@@ -57,14 +55,17 @@ export function CustomerFormModal({
           fullName,
           email,
           phone,
-          tempPassword,
           companyName: companyName || null,
           addressLine: addressLine || null,
           city: city || null,
           notes: notes || null,
         })
       }
-      show({ type: 'success', title: isEdit ? 'Customer updated' : 'Customer added' })
+      show({
+        type: 'success',
+        title: isEdit ? 'Customer updated' : 'Customer added',
+        message: isEdit ? undefined : `Invite email sent to ${email}.`,
+      })
       onClose()
     } catch (err) {
       show({ type: 'error', title: 'Could not save customer', message: (err as Error).message })
@@ -113,18 +114,6 @@ export function CustomerFormModal({
           onChange={(e) => setAddressLine(e.target.value)}
         />
         <Field id="c-city" label="City (optional)" value={city} onChange={(e) => setCity(e.target.value)} />
-        {!isEdit && (
-          <Field
-            id="c-pw"
-            label="Temporary password"
-            type="password"
-            value={tempPassword}
-            onChange={(e) => setTempPassword(e.target.value)}
-            error={
-              tempPassword.length > 0 && tempPassword.length < 8 ? 'At least 8 characters' : undefined
-            }
-          />
-        )}
         <Field
           id="c-notes"
           label="Notes (optional)"
