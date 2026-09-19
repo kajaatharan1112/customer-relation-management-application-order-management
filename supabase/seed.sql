@@ -30,8 +30,8 @@ begin
       '00000000-0000-0000-0000-000000000000',
       r.id, 'authenticated', 'authenticated', r.email,
       crypt('password123', gen_salt('bf')), now(),
-      '{"provider":"email","providers":["email"]}',
-      jsonb_build_object('user_type', r.user_type, 'full_name', r.full_name),
+      jsonb_build_object('provider', 'email', 'providers', array['email'], 'user_type', r.user_type),
+      jsonb_build_object('full_name', r.full_name),
       now(), now(),
       '', '', '', '', '', '', '', ''
     )

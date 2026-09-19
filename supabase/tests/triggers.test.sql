@@ -5,7 +5,7 @@ begin;
 -- 1. auth user -> profile + customers row auto-created
 insert into auth.users (id, email, raw_user_meta_data)
 values ('00000000-0000-0000-0000-000000000001', 't1@example.com',
-        '{"user_type":"customer","full_name":"Test One"}');
+        '{"full_name":"Test One"}');
 
 select count(*) = 1 as profile_created
 from public.profiles where id = '00000000-0000-0000-0000-000000000001';
@@ -16,6 +16,24 @@ from public.customers where profile_id = '00000000-0000-0000-0000-000000000001';
 select (user_type_id = (select id from public.user_types where key = 'customer')) as profile_type_ok
 from public.profiles where id = '00000000-0000-0000-0000-000000000001';
 
+-- 1b. a self-signup can't grant itself a staff role: user_type in
+-- raw_user_meta_data (client-controlled) is ignored without a matching
+-- app_metadata.user_type (only ever set by the admin-create-user function).
+insert into auth.users (id, email, raw_user_meta_data)
+values ('00000000-0000-0000-0000-00000000000a', 'spoofed@example.com',
+        '{"user_type":"admin_member","full_name":"Spoofer"}');
+
+select (user_type_id = (select id from public.user_types where key = 'customer')) as spoofed_role_ignored
+from public.profiles where id = '00000000-0000-0000-0000-00000000000a';
+
+-- 1c. app_metadata.user_type (server/admin-only field) is honored.
+insert into auth.users (id, email, raw_app_meta_data)
+values ('00000000-0000-0000-0000-00000000000b', 'invited@example.com',
+        '{"user_type":"employee"}');
+
+select (user_type_id = (select id from public.user_types where key = 'employee')) as invited_role_honored
+from public.profiles where id = '00000000-0000-0000-0000-00000000000b';
+
 -- 2. bill number + default status auto-filled
 insert into public.bills (customer_id) values ('00000000-0000-0000-0000-000000000001');
 
@@ -25,7 +43,7 @@ select
 from public.bills where customer_id = '00000000-0000-0000-0000-000000000001';
 
 -- 3. assert_customer_profile blocks a non-customer profile
-insert into auth.users (id, email, raw_user_meta_data)
+insert into auth.users (id, email, raw_app_meta_data)
 values ('00000000-0000-0000-0000-000000000002', 'staff1@example.com',
         '{"user_type":"admin_member"}');
 

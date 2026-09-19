@@ -3,7 +3,7 @@
 begin;
 
 -- Two customers + one admin (profiles created by the auth trigger).
-insert into auth.users (id, email, raw_user_meta_data) values
+insert into auth.users (id, email, raw_app_meta_data) values
   ('00000000-0000-0000-0000-0000000000aa', 'staff@example.com', '{"user_type":"admin_member"}'),
   ('00000000-0000-0000-0000-0000000000bb', 'cust@example.com',  '{"user_type":"customer"}'),
   ('00000000-0000-0000-0000-0000000000cc', 'cust2@example.com', '{"user_type":"customer"}');

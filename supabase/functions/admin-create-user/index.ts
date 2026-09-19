@@ -65,16 +65,22 @@ Deno.serve(async (req) => {
 
   const admin = createClient(url, service)
   const { data: created, error: cErr } = await admin.auth.admin.inviteUserByEmail(email, {
-    data: {
-      user_type: userType,
-      full_name: fullName,
-      phone,
-      created_by: userData.user.id,
-    },
+    data: { full_name: fullName, phone },
     redirectTo,
   })
   if (cErr || !created.user) {
     return json({ error: cErr?.message ?? 'create failed' }, 400)
+  }
+
+  // user_type/created_by go in app_metadata, not the invite's user_metadata:
+  // app_metadata can only be written via this service-role Admin API call,
+  // never by the user themselves — that's what stops a public signUp from
+  // granting itself a role (see migration 0013).
+  const { error: mErr } = await admin.auth.admin.updateUserById(created.user.id, {
+    app_metadata: { user_type: userType, created_by: userData.user.id },
+  })
+  if (mErr) {
+    return json({ error: mErr.message }, 400)
   }
 
   return json({ user_id: created.user.id }, 200)
