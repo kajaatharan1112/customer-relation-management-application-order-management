@@ -1,8 +1,7 @@
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { authService } from '@/core/auth/auth.service'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
@@ -15,55 +14,32 @@ const schema = z.object({
 })
 type FormValues = z.infer<typeof schema>
 
+/** For an admin-invited employee/admin/customer: they type the email + the
+ * 6-digit code from their invite email (instead of clicking the link) to
+ * verify and land on /reset-password to set their password. */
 export default function VerifyOtpPage() {
   const navigate = useNavigate()
   const { show } = useToast()
-  const location = useLocation()
-  const [searchParams] = useSearchParams()
-  const type = searchParams.get('type') === 'invite' ? 'invite' : 'signup'
-  const stateEmail = (location.state as { email?: string } | null)?.email ?? ''
-  const [resending, setResending] = useState(false)
-
   const {
     register,
     handleSubmit,
-    getValues,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: { email: stateEmail },
-  })
+  } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
   const onSubmit = async (values: FormValues) => {
-    const { error } = await authService.verifyEmailOtp(values.email, values.token, type)
+    const { error } = await authService.verifyEmailOtp(values.email, values.token, 'invite')
     if (error) {
       show({ type: 'error', title: 'Could not verify', message: error.message })
       return
     }
     show({ type: 'success', title: 'Email verified' })
-    navigate(type === 'invite' ? ROUTES.resetPassword : ROUTES.dashboard, { replace: true })
-  }
-
-  const onResend = async () => {
-    const email = getValues('email')
-    if (!email) {
-      show({ type: 'error', title: 'Enter your email first' })
-      return
-    }
-    setResending(true)
-    const { error } = await authService.resendSignupOtp(email)
-    setResending(false)
-    if (error) {
-      show({ type: 'error', title: 'Could not resend code', message: error.message })
-      return
-    }
-    show({ type: 'info', title: 'Code sent', message: 'Check your email for a new code.' })
+    navigate(ROUTES.resetPassword, { replace: true })
   }
 
   return (
     <AuthShell
-      title="Verify your email"
-      subtitle="Enter the 6-digit code we emailed you"
+      title="Verify your invite"
+      subtitle="Enter the 6-digit code your invite email sent you"
       footer={<AuthLink to={ROUTES.login}>Back to sign in</AuthLink>}
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -89,22 +65,9 @@ export default function VerifyOtpPage() {
         </Button>
       </form>
 
-      {type === 'signup' ? (
-        <Button
-          type="button"
-          variant="ghost"
-          fullWidth
-          disabled={resending}
-          onClick={onResend}
-          className="mt-3"
-        >
-          {resending ? 'Sending…' : 'Resend code'}
-        </Button>
-      ) : (
-        <p className="mt-3 text-center text-xs text-[var(--color-neo-text-secondary)]">
-          Didn&apos;t get a code? Ask your admin to resend the invite.
-        </p>
-      )}
+      <p className="mt-3 text-center text-xs text-[var(--color-neo-text-secondary)]">
+        Didn&apos;t get a code? Ask your admin to resend the invite.
+      </p>
     </AuthShell>
   )
 }
