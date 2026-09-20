@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
+import { Lock } from 'lucide-react'
 import { authService } from '@/core/auth/auth.service'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
@@ -49,6 +50,7 @@ export default function ResetPasswordPage() {
           label="New password"
           type="password"
           autoComplete="new-password"
+          icon={<Lock size={16} />}
           error={errors.password?.message}
           {...register('password')}
         />
@@ -57,6 +59,7 @@ export default function ResetPasswordPage() {
           label="Confirm password"
           type="password"
           autoComplete="new-password"
+          icon={<Lock size={16} />}
           error={errors.confirm?.message}
           {...register('confirm')}
         />

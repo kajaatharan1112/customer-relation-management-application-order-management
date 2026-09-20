@@ -6,7 +6,9 @@ const h = vi.hoisted(() => ({
       {
         id: 'b1',
         bill_number: 'INV-000001',
+        order_date: '2026-09-01',
         deadline: null,
+        paid_amount: 100,
         bill_statuses: { key: 'active', label: 'Active' },
         bill_rows: [
           { amount: 300, deleted_at: null, order_type_id: 'ot1', workflow_stages: { is_final: true } },
@@ -41,6 +43,8 @@ describe('portalBillRepository', () => {
       statusKey: 'active',
       statusLabel: 'Active',
       total: 250,
+      paidAmount: 100,
+      orderDate: '2026-09-01',
       deadline: null,
       trackedRows: 2,
       completedRows: 1,

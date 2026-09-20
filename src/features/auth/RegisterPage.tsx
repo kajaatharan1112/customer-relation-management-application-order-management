@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
+import { User, Mail, Lock, KeyRound } from 'lucide-react'
 import { authService } from '@/core/auth/auth.service'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
@@ -76,6 +77,7 @@ export default function RegisterPage() {
           label="Full name"
           autoComplete="name"
           disabled={otpSent}
+          icon={<User size={16} />}
           error={errors.fullName?.message}
           {...register('fullName')}
         />
@@ -87,6 +89,7 @@ export default function RegisterPage() {
               type="email"
               autoComplete="email"
               disabled={otpSent}
+              icon={<Mail size={16} />}
               error={errors.email?.message}
               {...register('email')}
             />
@@ -106,6 +109,7 @@ export default function RegisterPage() {
           label="Password"
           type="password"
           autoComplete="new-password"
+          icon={<Lock size={16} />}
           error={errors.password?.message}
           {...register('password')}
         />
@@ -116,6 +120,7 @@ export default function RegisterPage() {
             inputMode="numeric"
             maxLength={6}
             autoComplete="one-time-code"
+            icon={<KeyRound size={16} />}
             error={errors.otp?.message}
             {...register('otp')}
           />

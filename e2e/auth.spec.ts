@@ -32,3 +32,16 @@ test('a signed-in customer cannot reach staff routes', async ({ page }) => {
   await page.goto('/bills')
   await expect(page).toHaveURL(/\/portal$/)
 })
+
+test('the password field has a working show/hide toggle', async ({ page }) => {
+  await page.goto('/login')
+  const password = page.getByLabel('Password', { exact: true })
+  await password.fill('password123')
+  await expect(password).toHaveAttribute('type', 'password')
+
+  await page.getByRole('button', { name: /^show$/i }).click()
+  await expect(password).toHaveAttribute('type', 'text')
+
+  await page.getByRole('button', { name: /^hide$/i }).click()
+  await expect(password).toHaveAttribute('type', 'password')
+})

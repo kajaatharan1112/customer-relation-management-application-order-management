@@ -83,5 +83,32 @@ Deno.serve(async (req) => {
     return json({ error: mErr.message }, 400)
   }
 
+  // handle_new_auth_user() (0013) reads app_metadata.user_type at the
+  // auth.users INSERT that inviteUserByEmail just did — before the
+  // updateUserById above ever ran — so it always inserted this profile as
+  // 'customer' (plus a customers row). Re-stamp the real type now, and drop
+  // that row if this account isn't actually a customer.
+  const { data: typeRow, error: typeErr } = await admin
+    .from('user_types')
+    .select('id')
+    .eq('key', userType)
+    .single()
+  if (typeErr || !typeRow) {
+    return json({ error: typeErr?.message ?? 'unknown user_type' }, 400)
+  }
+  const { error: fixTypeErr } = await admin
+    .from('profiles')
+    .update({ user_type_id: typeRow.id })
+    .eq('id', created.user.id)
+  if (fixTypeErr) {
+    return json({ error: fixTypeErr.message }, 400)
+  }
+  if (userType !== 'customer') {
+    const { error: dropErr } = await admin.from('customers').delete().eq('profile_id', created.user.id)
+    if (dropErr) {
+      return json({ error: dropErr.message }, 400)
+    }
+  }
+
   return json({ user_id: created.user.id }, 200)
 })

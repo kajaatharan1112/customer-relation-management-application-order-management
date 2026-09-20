@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
-import { Tag, Pencil, Trash2 } from 'lucide-react'
+import { Tag, Trash2 } from 'lucide-react'
 import { StatusBadge } from '@/shared/ui/StatusBadge'
+import { CardMenu } from '@/shared/ui/CardMenu'
 import { formatCurrency } from '@/shared/utils/formatCurrency'
 import type { OrderTypeVM } from '@/features/settings/settings.types'
 
@@ -27,9 +28,23 @@ export function OrderTypeList({
         <motion.div
           key={o.id}
           layout
+          role={canWrite ? 'button' : undefined}
+          tabIndex={canWrite ? 0 : undefined}
+          onClick={canWrite ? () => onEdit(o) : undefined}
+          onKeyDown={
+            canWrite
+              ? (e) => {
+                  if (e.key === 'Enter') onEdit(o)
+                }
+              : undefined
+          }
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col overflow-hidden rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)]"
+          className={
+            canWrite
+              ? 'flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)] transition hover:shadow-[var(--shadow-neo-floating)]'
+              : 'flex flex-col overflow-hidden rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)]'
+          }
         >
           <div className="flex items-start gap-3 p-4">
             <span
@@ -45,6 +60,12 @@ export function OrderTypeList({
               label={o.isActive ? 'Active' : 'Inactive'}
               color={o.isActive ? 'var(--color-neo-success)' : 'var(--color-neo-secondary)'}
             />
+            {canWrite && (
+              <CardMenu
+                label={`Actions for ${o.name}`}
+                items={[{ label: 'Delete', icon: Trash2, tone: 'danger', onClick: () => onDelete(o) }]}
+              />
+            )}
           </div>
 
           <div className="border-t border-[var(--color-neo-secondary)]/15 px-4 pb-4 pt-4">
@@ -67,25 +88,6 @@ export function OrderTypeList({
               </div>
             </div>
           </div>
-
-          {canWrite && (
-            <div className="grid grid-cols-2 gap-2 px-4 pb-4 pt-2">
-              <button
-                type="button"
-                onClick={() => onEdit(o)}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-[var(--color-neo-primary)]/10 py-2.5 text-xs font-semibold text-[var(--color-neo-primary)] transition active:scale-95"
-              >
-                <Pencil size={15} />Edit
-              </button>
-              <button
-                type="button"
-                onClick={() => onDelete(o)}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-[var(--color-neo-danger)]/10 py-2.5 text-xs font-semibold text-[var(--color-neo-danger)] transition active:scale-95"
-              >
-                <Trash2 size={15} />Delete
-              </button>
-            </div>
-          )}
         </motion.div>
       ))}
     </div>

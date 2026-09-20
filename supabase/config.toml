@@ -246,6 +246,14 @@ otp_expiry = 3600
 subject = "Confirm your email"
 content_path = "./supabase/templates/confirm_signup.html"
 
+# Self-hosted GoTrue sends a brand-new signup's signInWithOtp() email under
+# "confirmation", not "magic_link" (that one only fires for an *existing*
+# user's passwordless OTP). Without this, new signups got Supabase's stock
+# link-based default instead of our OTP-code template.
+[auth.email.template.confirmation]
+subject = "Confirm your email"
+content_path = "./supabase/templates/confirm_signup.html"
+
 [auth.email.template.invite]
 subject = "You have been invited"
 content_path = "./supabase/templates/invite.html"

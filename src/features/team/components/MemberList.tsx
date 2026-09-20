@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
-import { Mail, Phone, Pencil, Ban, RotateCcw } from 'lucide-react'
+import { Mail, Phone, Ban, RotateCcw } from 'lucide-react'
 import { StatusBadge } from '@/shared/ui/StatusBadge'
+import { CardMenu } from '@/shared/ui/CardMenu'
 import { MEMBER_ROLE_LABEL, MEMBER_STATUS_COLOR, MEMBER_STATUS_LABEL } from '@/shared/constants/memberRoles'
 import type { MemberVM } from '@/features/team/team.types'
 
@@ -29,14 +30,20 @@ export function MemberList({ members, onEdit, onSetStatus, emptyCopy }: MemberLi
       {members.map((m) => {
         const canDisable = m.status === 'active' && !m.isSelf
         const canEnable = m.status === 'disabled'
-        const footerCols = 1 + (canDisable || canEnable ? 1 : 0)
         return (
           <motion.div
             key={m.profileId}
             layout
+            role="button"
+            tabIndex={0}
+            aria-label={`Edit ${m.fullName}`}
+            onClick={() => onEdit(m)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') onEdit(m)
+            }}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col overflow-hidden rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)]"
+            className="flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)] transition hover:shadow-[var(--shadow-neo-floating)]"
           >
             <div className="flex items-center gap-3 p-4">
               <span
@@ -53,6 +60,16 @@ export function MemberList({ members, onEdit, onSetStatus, emptyCopy }: MemberLi
                 <div className="truncate text-xs text-[var(--color-neo-text-secondary)]">{MEMBER_ROLE_LABEL[m.role]}</div>
               </div>
               <StatusBadge label={MEMBER_STATUS_LABEL[m.status]} color={MEMBER_STATUS_COLOR[m.status]} />
+              {(canDisable || canEnable) && (
+                <CardMenu
+                  label={`Actions for ${m.fullName}`}
+                  items={
+                    canDisable
+                      ? [{ label: 'Disable', icon: Ban, tone: 'danger', onClick: () => onSetStatus(m, 'disabled') }]
+                      : [{ label: 'Enable', icon: RotateCcw, onClick: () => onSetStatus(m, 'active') }]
+                  }
+                />
+              )}
             </div>
 
             <div className="flex flex-col gap-3 border-t border-[var(--color-neo-secondary)]/15 p-4 text-[13px] text-[var(--color-neo-text-secondary)]">
@@ -64,34 +81,6 @@ export function MemberList({ members, onEdit, onSetStatus, emptyCopy }: MemberLi
                 <Phone size={15} className="shrink-0" />
                 {m.phone ?? <span className="italic text-[var(--color-neo-text-secondary)]/70">No phone</span>}
               </span>
-            </div>
-
-            <div className="grid gap-2 px-4 pb-4 pt-2" style={{ gridTemplateColumns: `repeat(${footerCols}, minmax(0, 1fr))` }}>
-              <button
-                type="button"
-                onClick={() => onEdit(m)}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-[var(--color-neo-primary)]/10 py-2.5 text-xs font-semibold text-[var(--color-neo-primary)] transition active:scale-95"
-              >
-                <Pencil size={15} />Edit
-              </button>
-              {canDisable && (
-                <button
-                  type="button"
-                  onClick={() => onSetStatus(m, 'disabled')}
-                  className="flex items-center justify-center gap-1.5 rounded-xl bg-[var(--color-neo-danger)]/10 py-2.5 text-xs font-semibold text-[var(--color-neo-danger)] transition active:scale-95"
-                >
-                  <Ban size={15} />Disable
-                </button>
-              )}
-              {canEnable && (
-                <button
-                  type="button"
-                  onClick={() => onSetStatus(m, 'active')}
-                  className="flex items-center justify-center gap-1.5 rounded-xl bg-[var(--color-neo-success)]/12 py-2.5 text-xs font-semibold text-[var(--color-neo-success)] transition active:scale-95"
-                >
-                  <RotateCcw size={15} />Enable
-                </button>
-              )}
             </div>
           </motion.div>
         )

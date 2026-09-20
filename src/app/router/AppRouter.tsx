@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ErrorBoundary } from '@/app/ErrorBoundary'
 import { ProtectedRoute } from '@/app/router/ProtectedRoute'
@@ -5,27 +6,34 @@ import { RoleRoute } from '@/app/router/RoleRoute'
 import { AuthLayout } from '@/layouts/AuthLayout'
 import { AppLayout } from '@/layouts/AppLayout'
 import { PortalLayout } from '@/layouts/PortalLayout'
-import LoginPage from '@/features/auth/LoginPage'
-import RegisterPage from '@/features/auth/RegisterPage'
-import ForgotPasswordPage from '@/features/auth/ForgotPasswordPage'
-import ResetPasswordPage from '@/features/auth/ResetPasswordPage'
-import VerifyOtpPage from '@/features/auth/VerifyOtpPage'
-import OAuthCallbackPage from '@/features/auth/OAuthCallbackPage'
-import DashboardPage from '@/features/dashboard/DashboardPage'
-import SalesPage from '@/features/dashboard/SalesPage'
-import CustomersPage from '@/features/customers/CustomersPage'
-import BillsPage from '@/features/bills/BillsPage'
-import BillDetailPage from '@/features/bills/BillDetailPage'
-import SettingsPage from '@/features/settings/SettingsPage'
-import HomePage from '@/features/home/HomePage'
-import PortalHomePage from '@/features/portal/PortalHomePage'
-import PortalBillPage from '@/features/portal/PortalBillPage'
 import { ROUTES } from '@/shared/constants/routes'
+
+const LoginPage = lazy(() => import('@/features/auth/LoginPage'))
+const RegisterPage = lazy(() => import('@/features/auth/RegisterPage'))
+const ForgotPasswordPage = lazy(() => import('@/features/auth/ForgotPasswordPage'))
+const ResetPasswordPage = lazy(() => import('@/features/auth/ResetPasswordPage'))
+const VerifyOtpPage = lazy(() => import('@/features/auth/VerifyOtpPage'))
+const OAuthCallbackPage = lazy(() => import('@/features/auth/OAuthCallbackPage'))
+const DashboardPage = lazy(() => import('@/features/dashboard/DashboardPage'))
+const SalesPage = lazy(() => import('@/features/dashboard/SalesPage'))
+const CustomersPage = lazy(() => import('@/features/customers/CustomersPage'))
+const BillsPage = lazy(() => import('@/features/bills/BillsPage'))
+const SettingsPage = lazy(() => import('@/features/settings/SettingsPage'))
+const HomePage = lazy(() => import('@/features/home/HomePage'))
+const PortalHomePage = lazy(() => import('@/features/portal/PortalHomePage'))
+const PortalBillPage = lazy(() => import('@/features/portal/PortalBillPage'))
+
+function RouteFallback() {
+  return (
+    <p className="p-6 text-sm text-[var(--color-neo-text-secondary)] md:p-8">Loading…</p>
+  )
+}
 
 export function AppRouter() {
   return (
     <BrowserRouter>
       <ErrorBoundary>
+      <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route element={<AuthLayout />}>
           <Route path={ROUTES.login} element={<LoginPage />} />
@@ -43,7 +51,7 @@ export function AppRouter() {
               <Route path={ROUTES.dashboard} element={<DashboardPage />} />
               <Route path={ROUTES.customers} element={<CustomersPage />} />
               <Route path={ROUTES.bills} element={<BillsPage />} />
-              <Route path={ROUTES.billDetail} element={<BillDetailPage />} />
+              <Route path={ROUTES.billDetail} element={<BillsPage />} />
               <Route path={ROUTES.sales} element={<SalesPage />} />
               <Route element={<RoleRoute allow="admin" />}>
                 <Route path={ROUTES.settings} element={<SettingsPage />} />
@@ -61,6 +69,7 @@ export function AppRouter() {
 
         <Route path="*" element={<Navigate to={ROUTES.dashboard} replace />} />
       </Routes>
+      </Suspense>
       </ErrorBoundary>
     </BrowserRouter>
   )

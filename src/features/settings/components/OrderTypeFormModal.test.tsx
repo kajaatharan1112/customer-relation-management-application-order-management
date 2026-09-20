@@ -35,4 +35,13 @@ describe('OrderTypeFormModal', () => {
       expect.objectContaining({ name: 'Paper Printing', workflowTemplateId: 'w1', fixedAmount: 500 }),
     )
   })
+
+  it('edit mode: hides Save until something changes', async () => {
+    const orderType = { id: 'ot1', name: 'Paper Printing', workflowTemplateId: 'w1', workflowName: 'Printing', fixedAmount: null, isActive: true }
+    render(<OrderTypeFormModal orderType={orderType} workflows={workflows} onClose={() => {}} />)
+    expect(screen.queryByRole('button', { name: /save/i })).not.toBeInTheDocument()
+
+    await userEvent.type(screen.getByLabelText(/fixed amount/i), '500')
+    expect(screen.getByRole('button', { name: /save/i })).toBeEnabled()
+  })
 })

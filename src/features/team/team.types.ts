@@ -9,4 +9,21 @@ export interface MemberVM {
   status: MemberStatus
   createdAt: string
   isSelf: boolean
+  contactNumber: string | null
+  addressLine: string | null
+  city: string | null
+  nic: string | null
+  designation: string | null
+  department: string | null
+  dateOfBirth: string | null
+}
+
+export interface MemberOtherDetails {
+  contactNumber: string | null
+  addressLine: string | null
+  city: string | null
+  nic: string | null
+  designation: string | null
+  department: string | null
+  dateOfBirth: string | null
 }

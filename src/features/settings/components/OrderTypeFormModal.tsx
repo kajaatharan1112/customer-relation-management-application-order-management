@@ -25,8 +25,16 @@ export function OrderTypeFormModal({
   const { mutateAsync, isPending } = useSaveOrderType()
   const { show } = useToast()
 
+  const isEdit = !!orderType
+  const dirty =
+    isEdit &&
+    (name !== orderType!.name ||
+      workflowTemplateId !== orderType!.workflowTemplateId ||
+      fixedAmount !== (orderType!.fixedAmount?.toString() ?? '') ||
+      isActive !== orderType!.isActive)
+
   const activeWorkflows = workflows.filter((w) => w.isActive)
-  const canSave = name.trim().length > 0 && workflowTemplateId.length > 0
+  const canSave = name.trim().length > 0 && workflowTemplateId.length > 0 && (!isEdit || dirty)
 
   const onSave = async () => {
     try {
@@ -55,9 +63,11 @@ export function OrderTypeFormModal({
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="button" variant="primary" disabled={!canSave || isPending} onClick={onSave}>
-            {isPending ? 'Saving…' : 'Save'}
-          </Button>
+          {(!isEdit || dirty) && (
+            <Button type="button" variant="primary" disabled={!canSave || isPending} onClick={onSave}>
+              {isPending ? 'Saving…' : 'Save'}
+            </Button>
+          )}
         </FormActions>
       }
     >

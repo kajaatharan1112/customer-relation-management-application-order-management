@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
-import { Workflow, ArrowRight, Check, Pencil, Trash2 } from 'lucide-react'
+import { Workflow, ArrowRight, Check, Trash2 } from 'lucide-react'
 import { StatusBadge } from '@/shared/ui/StatusBadge'
+import { CardMenu } from '@/shared/ui/CardMenu'
 import type { WorkflowTemplateVM } from '@/features/settings/settings.types'
 
 export function WorkflowList({
@@ -28,9 +29,23 @@ export function WorkflowList({
         <motion.div
           key={t.id}
           layout
+          role={canWrite ? 'button' : undefined}
+          tabIndex={canWrite ? 0 : undefined}
+          onClick={canWrite ? () => onEdit(t) : undefined}
+          onKeyDown={
+            canWrite
+              ? (e) => {
+                  if (e.key === 'Enter') onEdit(t)
+                }
+              : undefined
+          }
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col overflow-hidden rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)]"
+          className={
+            canWrite
+              ? 'flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)] transition hover:shadow-[var(--shadow-neo-floating)]'
+              : 'flex flex-col overflow-hidden rounded-2xl border border-white/50 bg-[var(--color-neo-card)] shadow-[var(--shadow-neo-soft)]'
+          }
         >
           <div className="flex items-start gap-3 p-4">
             <span
@@ -49,6 +64,12 @@ export function WorkflowList({
               label={t.isActive ? 'Active' : 'Inactive'}
               color={t.isActive ? 'var(--color-neo-success)' : 'var(--color-neo-secondary)'}
             />
+            {canWrite && (
+              <CardMenu
+                label={`Actions for ${t.name}`}
+                items={[{ label: 'Delete', icon: Trash2, tone: 'danger', onClick: () => onDelete(t) }]}
+              />
+            )}
           </div>
 
           <div className="border-t border-[var(--color-neo-secondary)]/15 px-4 pb-4 pt-4">
@@ -71,25 +92,6 @@ export function WorkflowList({
               </div>
             )}
           </div>
-
-          {canWrite && (
-            <div className="grid grid-cols-2 gap-2 px-4 pb-4 pt-2">
-              <button
-                type="button"
-                onClick={() => onEdit(t)}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-[var(--color-neo-primary)]/10 py-2.5 text-xs font-semibold text-[var(--color-neo-primary)] transition active:scale-95"
-              >
-                <Pencil size={15} />Edit
-              </button>
-              <button
-                type="button"
-                onClick={() => onDelete(t)}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-[var(--color-neo-danger)]/10 py-2.5 text-xs font-semibold text-[var(--color-neo-danger)] transition active:scale-95"
-              >
-                <Trash2 size={15} />Delete
-              </button>
-            </div>
-          )}
         </motion.div>
       ))}
     </div>

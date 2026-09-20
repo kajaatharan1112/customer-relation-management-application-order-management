@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
+import { Mail, KeyRound } from 'lucide-react'
 import { authService } from '@/core/auth/auth.service'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
@@ -48,6 +49,7 @@ export default function VerifyOtpPage() {
           label="Email"
           type="email"
           autoComplete="email"
+          icon={<Mail size={16} />}
           error={errors.email?.message}
           {...register('email')}
         />
@@ -57,6 +59,7 @@ export default function VerifyOtpPage() {
           inputMode="numeric"
           maxLength={6}
           autoComplete="one-time-code"
+          icon={<KeyRound size={16} />}
           error={errors.token?.message}
           {...register('token')}
         />

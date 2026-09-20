@@ -5,7 +5,10 @@ import type { MemberVM } from '@/features/team/team.types'
 
 const m = (o: Partial<MemberVM>): MemberVM => ({
   profileId: 'p1', fullName: 'Ava Admin', email: 'ava@x.co', phone: null,
-  role: 'admin_member', status: 'active', createdAt: '2026-01-01', isSelf: false, ...o,
+  role: 'admin_member', status: 'active', createdAt: '2026-01-01', isSelf: false,
+  contactNumber: null, addressLine: null, city: null, nic: null,
+  designation: null, department: null, dateOfBirth: null,
+  ...o,
 })
 
 it('renders a card per member with name, email and a status badge', () => {
@@ -24,27 +27,35 @@ it('renders a card per member with name, email and a status badge', () => {
   expect(screen.getByText('Disabled')).toBeInTheDocument()
 })
 
-it('hides Disable for self but keeps Edit', () => {
+it('clicking the card calls onEdit', async () => {
+  const onEdit = vi.fn()
+  const member = m({})
+  render(<MemberList members={[member]} onEdit={onEdit} onSetStatus={() => {}} emptyCopy="none" />)
+  await userEvent.click(screen.getByText('Ava Admin'))
+  expect(onEdit).toHaveBeenCalledWith(member)
+})
+
+it('hides the actions menu for self (no Disable option)', () => {
   render(<MemberList members={[m({ isSelf: true })]} onEdit={() => {}} onSetStatus={() => {}} emptyCopy="none" />)
-  expect(screen.queryByRole('button', { name: /disable/i })).toBeNull()
-  expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: /actions for/i })).not.toBeInTheDocument()
 })
 
-it('shows Enable (not Disable) for a disabled member', () => {
+it('menu offers Enable (not Disable) for a disabled member', async () => {
   render(<MemberList members={[m({ status: 'disabled' })]} onEdit={() => {}} onSetStatus={() => {}} emptyCopy="none" />)
-  expect(screen.getByRole('button', { name: /enable/i })).toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: /disable/i })).toBeNull()
+  await userEvent.click(screen.getByRole('button', { name: /actions for/i }))
+  expect(screen.getByRole('menuitem', { name: /enable/i })).toBeInTheDocument()
+  expect(screen.queryByRole('menuitem', { name: /disable/i })).not.toBeInTheDocument()
 })
 
-it('wires Edit and Disable', async () => {
+it('wires the Disable menu item without triggering onEdit', async () => {
   const onEdit = vi.fn()
   const onSetStatus = vi.fn()
   const member = m({})
   render(<MemberList members={[member]} onEdit={onEdit} onSetStatus={onSetStatus} emptyCopy="none" />)
-  await userEvent.click(screen.getByRole('button', { name: /edit/i }))
-  await userEvent.click(screen.getByRole('button', { name: /disable/i }))
-  expect(onEdit).toHaveBeenCalledWith(member)
+  await userEvent.click(screen.getByRole('button', { name: /actions for/i }))
+  await userEvent.click(screen.getByRole('menuitem', { name: /disable/i }))
   expect(onSetStatus).toHaveBeenCalledWith(member, 'disabled')
+  expect(onEdit).not.toHaveBeenCalled()
 })
 
 it('shows the empty copy when there are no members', () => {

@@ -65,14 +65,17 @@ test.describe('modal form layout', () => {
 
     const dialog = page.getByRole('dialog')
     const title = dialog.getByRole('heading', { name: 'Add customer' })
-    const saveBtn = dialog.getByRole('button', { name: /^save$/i })
+    // A fresh "Add customer" form is OTP-based (no password set yet), so its
+    // footer shows "Send OTP" rather than "Save" — either way it's the pinned
+    // footer action this test cares about.
+    const saveBtn = dialog.getByRole('button', { name: /^send otp$/i })
     const body = dialog.locator('[data-modal-body]')
 
     await expect(title).toBeVisible()
     await expect(saveBtn).toBeVisible()
 
     // the actions live in the pinned footer, not inside the scroll region
-    await expect(body.getByRole('button', { name: /^save$/i })).toHaveCount(0)
+    await expect(body.getByRole('button', { name: /^send otp$/i })).toHaveCount(0)
 
     // body is actually overflowing, and scrolling it moves only its own content
     expect(await body.evaluate((el) => el.scrollHeight - el.clientHeight)).toBeGreaterThan(0)

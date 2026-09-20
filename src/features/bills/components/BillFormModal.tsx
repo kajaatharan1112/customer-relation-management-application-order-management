@@ -17,16 +17,18 @@ export function BillFormModal({
   bill,
   customers,
   orderTypes,
+  defaultCustomerId,
   onClose,
   onSaved,
 }: {
   bill?: BillDetailVM
   customers: CustomerVM[]
   orderTypes: { id: string; name: string; fixedAmount: number | null }[]
+  defaultCustomerId?: string
   onClose: () => void
   onSaved?: (id: string) => void
 }) {
-  const [customerId, setCustomerId] = useState(bill?.customerId ?? '')
+  const [customerId, setCustomerId] = useState(bill?.customerId ?? defaultCustomerId ?? '')
   const [orderDate, setOrderDate] = useState(bill?.orderDate ?? today())
   const [deadline, setDeadline] = useState(bill?.deadline ?? '')
   const [notes, setNotes] = useState(bill?.notes ?? '')

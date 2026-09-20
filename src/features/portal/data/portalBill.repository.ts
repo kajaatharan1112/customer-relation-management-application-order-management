@@ -6,7 +6,9 @@ import type { PortalBillListVM } from '@/features/portal/portal.types'
 interface PortalRow {
   id: string
   bill_number: string
+  order_date: string
   deadline: string | null
+  paid_amount: number
   bill_statuses: { key: string; label: string } | null
   bill_rows: {
     amount: number
@@ -25,7 +27,7 @@ export const portalBillRepository = {
     const { data, error } = await supabase
       .from('bills')
       .select(
-        'id, bill_number, deadline, bill_statuses(key, label), bill_rows(amount, deleted_at, order_type_id, workflow_stages(is_final))',
+        'id, bill_number, order_date, deadline, paid_amount, bill_statuses(key, label), bill_rows(amount, deleted_at, order_type_id, workflow_stages(is_final))',
       )
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
@@ -38,6 +40,8 @@ export const portalBillRepository = {
         statusKey: b.bill_statuses?.key ?? 'pending',
         statusLabel: b.bill_statuses?.label ?? 'Pending',
         total: live.reduce((s, r) => s + Number(r.amount), 0),
+        paidAmount: Number(b.paid_amount),
+        orderDate: b.order_date,
         deadline: b.deadline,
         trackedRows: live.filter((r) => r.order_type_id !== null).length,
         completedRows: live.filter((r) => r.workflow_stages?.is_final === true).length,

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter, Routes, Route } from 'react-router-dom'
+import userEvent from '@testing-library/user-event'
 
 const bill = {
   id: 'b1',
@@ -53,17 +53,11 @@ vi.mock('@/core/auth/auth.hooks', () => ({
 }))
 vi.mock('@/shared/ui/Toast', () => ({ useToast: () => ({ show: vi.fn() }) }))
 
-import BillDetailPage from '@/features/bills/BillDetailPage'
+import { BillDetailView } from '@/features/bills/components/BillDetailView'
 
-describe('BillDetailPage (phase 4)', () => {
+describe('BillDetailView', () => {
   it('renders the tracking, messages and files sections', () => {
-    render(
-      <MemoryRouter initialEntries={['/bills/b1']}>
-        <Routes>
-          <Route path="/bills/:id" element={<BillDetailPage />} />
-        </Routes>
-      </MemoryRouter>,
-    )
+    render(<BillDetailView billId="b1" onClose={() => {}} />)
     expect(screen.getByText('INV-000001')).toBeInTheDocument()
     expect(screen.getByText('Banners')).toBeInTheDocument()
     expect(screen.getByText('History')).toBeInTheDocument()
@@ -72,5 +66,18 @@ describe('BillDetailPage (phase 4)', () => {
     // tagged row renders its stepper stage
     expect(screen.getByText('Prep')).toBeInTheDocument()
     expect(screen.getByTestId('bill-balance')).toHaveTextContent(/LKR/)
+  })
+
+  it('calls onClose when the close button is clicked', async () => {
+    const onClose = vi.fn()
+    render(<BillDetailView billId="b1" onClose={onClose} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Close' }))
+    expect(onClose).toHaveBeenCalled()
+  })
+
+  it('opens Record payment from the top corner action row, not from the middle Actions card', async () => {
+    render(<BillDetailView billId="b1" onClose={() => {}} />)
+    await userEvent.click(screen.getByRole('button', { name: /record payment/i }))
+    expect(screen.getByRole('dialog', { name: 'Record payment' })).toBeInTheDocument()
   })
 })

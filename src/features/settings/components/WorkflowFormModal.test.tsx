@@ -10,6 +10,11 @@ vi.mock('@/shared/ui/Toast', () => ({ useToast: () => ({ show: vi.fn() }) }))
 
 import { WorkflowFormModal } from '@/features/settings/components/WorkflowFormModal'
 
+const template = {
+  id: 't1', name: 'Standard Print', description: null, isActive: true,
+  stages: [{ id: 's1', name: 'Prep', sortOrder: 0, color: '#111', isFinal: true }],
+}
+
 describe('WorkflowFormModal', () => {
   it('disables save until there is a name, a stage, and one final stage', () => {
     render(<WorkflowFormModal onClose={() => {}} />)
@@ -36,5 +41,13 @@ describe('WorkflowFormModal', () => {
         stages: [expect.objectContaining({ name: 'Prep', isFinal: true })],
       }),
     )
+  })
+
+  it('edit mode: hides Save until something changes', async () => {
+    render(<WorkflowFormModal template={template} onClose={() => {}} />)
+    expect(screen.queryByRole('button', { name: /save/i })).not.toBeInTheDocument()
+
+    await userEvent.type(screen.getByLabelText(/workflow name/i), ' v2')
+    expect(screen.getByRole('button', { name: /save/i })).toBeEnabled()
   })
 })
