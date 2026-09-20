@@ -1,12 +1,21 @@
-import { STAFF_NAV, MOBILE_NAV, SIDEBAR_NAV, sidebarNavFor } from '@/components/navigation/navConfig'
+import { STAFF_NAV, SIDEBAR_NAV, mobileNavFor, sidebarNavFor } from '@/components/navigation/navConfig'
 import { ROUTES } from '@/shared/constants/routes'
 
 describe('nav config', () => {
-  it('keeps the mobile bar at 4 tabs, Home first', () => {
-    expect(MOBILE_NAV).toHaveLength(4)
-    expect(MOBILE_NAV[0].to).toBe(ROUTES.home)
-    expect(MOBILE_NAV.some((n) => n.to === ROUTES.sales)).toBe(false)
-    expect(MOBILE_NAV.some((n) => n.to === ROUTES.settings)).toBe(false)
+  it('mobileNavFor(false) keeps the mobile bar at 4 tabs, Home first, no Settings', () => {
+    const asEmployee = mobileNavFor(false)
+    expect(asEmployee).toHaveLength(4)
+    expect(asEmployee[0].to).toBe(ROUTES.home)
+    expect(asEmployee.some((n) => n.to === ROUTES.sales)).toBe(false)
+    expect(asEmployee.some((n) => n.to === ROUTES.settings)).toBe(false)
+  })
+
+  it('mobileNavFor(true) adds a 5th Settings tab for admins', () => {
+    const asAdmin = mobileNavFor(true)
+    expect(asAdmin).toHaveLength(5)
+    expect(asAdmin[0].to).toBe(ROUTES.home)
+    expect(asAdmin.some((n) => n.to === ROUTES.sales)).toBe(false)
+    expect(asAdmin.some((n) => n.to === ROUTES.settings)).toBe(true)
   })
 
   it('STAFF_NAV leads with Home', () => {

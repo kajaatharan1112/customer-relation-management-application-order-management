@@ -3,7 +3,7 @@
 begin;
 
 -- staff + customer
-insert into auth.users (id, email, raw_user_meta_data) values
+insert into auth.users (id, email, raw_app_meta_data) values
   ('00000000-0000-0000-0000-0000000000a1', 'staff@t.co', '{"user_type":"admin_member"}'),
   ('00000000-0000-0000-0000-0000000000c1', 'cust@t.co',  '{"user_type":"customer"}');
 

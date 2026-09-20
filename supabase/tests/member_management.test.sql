@@ -25,7 +25,7 @@ end $$;
 -- add a second admin (via auth.users so the handle_new_user trigger makes the
 -- profile), then disabling the first is allowed.
 reset role;
-insert into auth.users (id, email, raw_user_meta_data) values
+insert into auth.users (id, email, raw_app_meta_data) values
   ('99999999-0000-0000-0000-000000000009', 'second@onevo.test', '{"user_type":"admin_member"}');
 select public.active_admin_count() = 2 as two_active_admins;
 

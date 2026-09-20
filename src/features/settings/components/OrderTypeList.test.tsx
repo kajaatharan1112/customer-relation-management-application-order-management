@@ -25,20 +25,27 @@ describe('OrderTypeList', () => {
     expect(screen.getByText('—')).toBeInTheDocument()
   })
 
-  it('hides the footer actions when canWrite is false', () => {
+  it('hides the actions menu and card click when canWrite is false', () => {
     render(<OrderTypeList orderTypes={orderTypes} canWrite={false} onEdit={() => {}} onDelete={() => {}} />)
-    expect(screen.queryByRole('button', { name: /edit/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /actions for/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Paper Printing' })).not.toBeInTheDocument()
   })
 
-  it('wires Edit and Delete to the handlers with the order type', async () => {
+  it('clicking the card calls onEdit', async () => {
+    const onEdit = vi.fn()
+    render(<OrderTypeList orderTypes={[orderTypes[0]!]} canWrite onEdit={onEdit} onDelete={() => {}} />)
+    await userEvent.click(screen.getByText('Paper Printing'))
+    expect(onEdit).toHaveBeenCalledWith(orderTypes[0])
+  })
+
+  it('wires the Delete menu item without triggering onEdit', async () => {
     const onEdit = vi.fn()
     const onDelete = vi.fn()
     render(<OrderTypeList orderTypes={[orderTypes[0]!]} canWrite onEdit={onEdit} onDelete={onDelete} />)
-    await userEvent.click(screen.getByRole('button', { name: /edit/i }))
-    await userEvent.click(screen.getByRole('button', { name: /delete/i }))
-    expect(onEdit).toHaveBeenCalledWith(orderTypes[0])
+    await userEvent.click(screen.getByRole('button', { name: /actions for paper printing/i }))
+    await userEvent.click(screen.getByRole('menuitem', { name: /delete/i }))
     expect(onDelete).toHaveBeenCalledWith(orderTypes[0])
+    expect(onEdit).not.toHaveBeenCalled()
   })
 
   it('shows the empty copy when there are no order types', () => {

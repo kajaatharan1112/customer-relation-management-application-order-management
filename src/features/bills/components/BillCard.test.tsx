@@ -19,15 +19,51 @@ describe('BillCard', () => {
     expect(screen.getByText('LKR 90,000.00')).toBeInTheDocument() // pending = total - paid
   })
 
-  it('View always shown; Edit/Delete only with handlers', async () => {
+  it('opens the bill when the card itself is clicked, with no View button', async () => {
     const onOpen = vi.fn()
-    const onEdit = vi.fn()
-    render(<BillCard bill={bill} onOpen={onOpen} onEdit={onEdit} />)
-    expect(screen.queryByRole('button', { name: /delete/i })).toBeNull()
-    await userEvent.click(screen.getByRole('button', { name: /view/i }))
-    await userEvent.click(screen.getByRole('button', { name: /edit/i }))
+    render(<BillCard bill={bill} onOpen={onOpen} />)
+    expect(screen.queryByRole('button', { name: /view/i })).toBeNull()
+    await userEvent.click(screen.getByText('BILL-42'))
     expect(onOpen).toHaveBeenCalledWith(bill)
-    expect(onEdit).toHaveBeenCalledWith(bill)
+  })
+
+  it('shows no actions menu without an onDelete handler', () => {
+    render(<BillCard bill={bill} onOpen={() => {}} />)
+    expect(screen.queryByRole('button', { name: /actions for/i })).toBeNull()
+  })
+
+  it('opens a menu with Delete when onDelete is provided, without triggering onOpen', async () => {
+    const onOpen = vi.fn()
+    const onDelete = vi.fn()
+    render(<BillCard bill={bill} onOpen={onOpen} onDelete={onDelete} />)
+
+    expect(screen.queryByRole('menuitem', { name: /delete/i })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: /actions for bill-42/i }))
+    expect(onOpen).not.toHaveBeenCalled()
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /delete/i }))
+    expect(onDelete).toHaveBeenCalledWith(bill)
+    expect(onOpen).not.toHaveBeenCalled()
+  })
+
+  it('opens a menu with Record payment when onRecordPayment is provided, without triggering onOpen', async () => {
+    const onOpen = vi.fn()
+    const onRecordPayment = vi.fn()
+    render(<BillCard bill={bill} onOpen={onOpen} onRecordPayment={onRecordPayment} />)
+
+    await userEvent.click(screen.getByRole('button', { name: /actions for bill-42/i }))
+    expect(onOpen).not.toHaveBeenCalled()
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /record payment/i }))
+    expect(onRecordPayment).toHaveBeenCalledWith(bill)
+    expect(onOpen).not.toHaveBeenCalled()
+  })
+
+  it('lists Record payment before Delete when both handlers are provided', async () => {
+    render(<BillCard bill={bill} onOpen={() => {}} onDelete={() => {}} onRecordPayment={() => {}} />)
+    await userEvent.click(screen.getByRole('button', { name: /actions for bill-42/i }))
+    const items = screen.getAllByRole('menuitem').map((el) => el.textContent)
+    expect(items).toEqual(['Record payment', 'Delete'])
   })
 
   it('shows pending in success colour when fully paid', () => {

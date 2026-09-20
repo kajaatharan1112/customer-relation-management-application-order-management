@@ -27,8 +27,10 @@ test.describe('settings — members', () => {
     const stamp = Date.now()
     await page.getByLabel(/full name/i).fill('E2E Worker')
     await page.getByLabel(/^email/i).fill(`worker.${stamp}@onevo.test`)
-    await page.getByLabel(/temporary password/i).fill('secret12345')
-    await page.getByRole('dialog').getByRole('button', { name: /^save$/i }).click()
+    await page.getByLabel(/set their password/i).fill('secret12345')
+    // Sending the OTP already creates the member row (status: invited); the
+    // admin-side flow doesn't need to complete verification to see it listed.
+    await page.getByRole('dialog').getByRole('button', { name: /^send otp$/i }).click()
     await expect(page.getByText('E2E Worker')).toBeVisible()
   })
 })

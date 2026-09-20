@@ -73,6 +73,7 @@ export default function PortalBillPage() {
       </p>
 
       <Card className="p-4">
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <tbody>
             {bill.rows.map((r) => (
@@ -122,6 +123,7 @@ export default function PortalBillPage() {
             </tr>
           </tfoot>
         </table>
+        </div>
       </Card>
 
       <Card className="p-4">

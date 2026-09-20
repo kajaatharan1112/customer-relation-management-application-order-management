@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { Mail } from 'lucide-react'
 import { authService } from '@/core/auth/auth.service'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
@@ -39,6 +40,7 @@ export default function ForgotPasswordPage() {
           label="Email"
           type="email"
           autoComplete="email"
+          icon={<Mail size={16} />}
           error={errors.email?.message}
           {...register('email')}
         />

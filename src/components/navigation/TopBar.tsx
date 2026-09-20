@@ -18,6 +18,6 @@ function cnHeader(withSidebarOffset: boolean) {
   return [
     'fixed left-0 right-0 top-0 z-40 flex h-[64px] items-center justify-between',
     'border-b border-white/10 bg-[var(--color-neo-text-primary)] px-5 shadow-sm',
-    withSidebarOffset ? 'md:left-[72px]' : '',
+    withSidebarOffset ? 'md:left-[96px]' : '',
   ].join(' ')
 }

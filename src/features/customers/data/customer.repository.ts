@@ -51,7 +51,6 @@ export const customerRepository = {
     fullName: string
     email: string
     phone: string
-    tempPassword: string
     companyName: string | null
     addressLine: string | null
     city: string | null
@@ -63,7 +62,7 @@ export const customerRepository = {
         full_name: input.fullName,
         phone: input.phone,
         user_type: 'customer',
-        temp_password: input.tempPassword,
+        redirect_to: `${window.location.origin}/reset-password`,
       },
     })
     if (error) throw error

@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
+import { User, Mail, Lock, KeyRound } from 'lucide-react'
 import { authService } from '@/core/auth/auth.service'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
@@ -12,26 +14,51 @@ const schema = z.object({
   fullName: z.string().min(2, 'Enter your name'),
   email: z.string().email('Enter a valid email'),
   password: z.string().min(8, 'At least 8 characters'),
+  otp: z.string().length(6, 'Enter the 6-digit code'),
 })
 type FormValues = z.infer<typeof schema>
 
 export default function RegisterPage() {
   const navigate = useNavigate()
   const { show } = useToast()
+  const [otpSent, setOtpSent] = useState(false)
+  const [sendingOtp, setSendingOtp] = useState(false)
   const {
     register,
     handleSubmit,
+    trigger,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
-  const onSubmit = async (values: FormValues) => {
-    const { error } = await authService.signUpWithPassword(values.email, values.password, values.fullName)
+  const onSendOtp = async () => {
+    const valid = await trigger(['fullName', 'email'])
+    if (!valid) return
+
+    setSendingOtp(true)
+    const { fullName, email } = getValues()
+    const { error } = await authService.sendSignupOtp(email, fullName)
+    setSendingOtp(false)
+
     if (error) {
-      show({ type: 'error', title: 'Sign up failed', message: error.message })
+      show({ type: 'error', title: 'Could not send code', message: error.message })
       return
     }
-    show({ type: 'success', title: 'Check your email', message: 'Confirm your address to finish signing up.' })
-    navigate(ROUTES.login, { replace: true })
+    setOtpSent(true)
+    show({ type: 'info', title: 'Code sent', message: 'Enter the 6-digit code we emailed you.' })
+  }
+
+  const onSubmit = async (values: FormValues) => {
+    const { error } = await authService.verifyEmailOtp(values.email, values.otp, 'email')
+    if (error) {
+      show({ type: 'error', title: 'Could not verify code', message: error.message })
+      return
+    }
+    const { error: pwError } = await authService.updatePassword(values.password)
+    if (pwError) {
+      show({ type: 'error', title: 'Signed in, but could not set password', message: pwError.message })
+    }
+    navigate(ROUTES.dashboard, { replace: true })
   }
 
   return (
@@ -49,26 +76,62 @@ export default function RegisterPage() {
           id="fullName"
           label="Full name"
           autoComplete="name"
+          disabled={otpSent}
+          icon={<User size={16} />}
           error={errors.fullName?.message}
           {...register('fullName')}
         />
-        <Field
-          id="email"
-          label="Email"
-          type="email"
-          autoComplete="email"
-          error={errors.email?.message}
-          {...register('email')}
-        />
+        <div className="flex items-start gap-2">
+          <div className="flex-1">
+            <Field
+              id="email"
+              label="Email"
+              type="email"
+              autoComplete="email"
+              disabled={otpSent}
+              icon={<Mail size={16} />}
+              error={errors.email?.message}
+              {...register('email')}
+            />
+          </div>
+          <Button
+            type="button"
+            variant="default"
+            disabled={sendingOtp}
+            onClick={onSendOtp}
+            className="mt-[26px] shrink-0"
+          >
+            {sendingOtp ? 'Sending…' : otpSent ? 'Resend OTP' : 'Send OTP'}
+          </Button>
+        </div>
         <Field
           id="password"
           label="Password"
           type="password"
           autoComplete="new-password"
+          icon={<Lock size={16} />}
           error={errors.password?.message}
           {...register('password')}
         />
-        <Button type="submit" variant="primary" fullWidth disabled={isSubmitting} className="mt-4">
+        {otpSent && (
+          <Field
+            id="otp"
+            label="6-digit code"
+            inputMode="numeric"
+            maxLength={6}
+            autoComplete="one-time-code"
+            icon={<KeyRound size={16} />}
+            error={errors.otp?.message}
+            {...register('otp')}
+          />
+        )}
+        <Button
+          type="submit"
+          variant="primary"
+          fullWidth
+          disabled={!otpSent || isSubmitting}
+          className="mt-4"
+        >
           {isSubmitting ? 'Creating account…' : 'Create account'}
         </Button>
       </form>

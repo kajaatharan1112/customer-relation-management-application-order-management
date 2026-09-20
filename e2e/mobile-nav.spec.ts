@@ -4,16 +4,31 @@ import { test, expect } from '@playwright/test'
 // Sidebar is display:none (so it is absent from the accessibility tree).
 test.use({ storageState: 'e2e/.auth/admin.json', viewport: { width: 390, height: 844 } })
 
-test('the bottom bar has exactly 4 tabs and no "Sales" or "Settings" tab', async ({ page }) => {
+test('the bottom bar has 5 tabs for an admin, including Settings but no Sales', async ({ page }) => {
   await page.goto('/')
 
   const nav = page.getByRole('navigation')
-  await expect(nav.getByRole('link')).toHaveCount(4)
-  for (const name of ['Home', 'Dashboard', 'Customers', 'Bills']) {
+  await expect(nav.getByRole('link')).toHaveCount(5)
+  for (const name of ['Home', 'Dashboard', 'Customers', 'Bills', 'Settings']) {
     await expect(nav.getByRole('link', { name })).toBeVisible()
   }
   await expect(nav.getByRole('link', { name: 'Sales' })).toHaveCount(0)
-  await expect(nav.getByRole('link', { name: 'Settings' })).toHaveCount(0)
+})
+
+test.describe('non-admin staff', () => {
+  test.use({ storageState: 'e2e/.auth/staff.json' })
+
+  test('the bottom bar has exactly 4 tabs and no "Sales" or "Settings" tab', async ({ page }) => {
+    await page.goto('/')
+
+    const nav = page.getByRole('navigation')
+    await expect(nav.getByRole('link')).toHaveCount(4)
+    for (const name of ['Home', 'Dashboard', 'Customers', 'Bills']) {
+      await expect(nav.getByRole('link', { name })).toBeVisible()
+    }
+    await expect(nav.getByRole('link', { name: 'Sales' })).toHaveCount(0)
+    await expect(nav.getByRole('link', { name: 'Settings' })).toHaveCount(0)
+  })
 })
 
 test('the current route tab is aria-current and the desktop sidebar is hidden', async ({ page }) => {

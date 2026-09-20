@@ -1,5 +1,6 @@
-// admin-create-user — an authenticated admin_member creates a new user with a
-// temporary password. Runs with the service role; verifies the caller first.
+// admin-create-user — an authenticated admin_member creates a new user and
+// Supabase emails them an invite link to set their own password. Runs with
+// the service role; verifies the caller first.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const cors = {
@@ -53,9 +54,9 @@ Deno.serve(async (req) => {
   const fullName = String(body.full_name ?? '')
   const phone = body.phone == null ? null : String(body.phone)
   const userType = String(body.user_type ?? '')
-  const tempPassword = String(body.temp_password ?? '')
+  const redirectTo = body.redirect_to == null ? undefined : String(body.redirect_to)
 
-  if (!email || !fullName || !userType || !tempPassword) {
+  if (!email || !fullName || !userType) {
     return json({ error: 'missing fields' }, 400)
   }
   if (!['admin_member', 'employee', 'customer'].includes(userType)) {
@@ -63,19 +64,50 @@ Deno.serve(async (req) => {
   }
 
   const admin = createClient(url, service)
-  const { data: created, error: cErr } = await admin.auth.admin.createUser({
-    email,
-    password: tempPassword,
-    email_confirm: true,
-    user_metadata: {
-      user_type: userType,
-      full_name: fullName,
-      phone,
-      created_by: userData.user.id,
-    },
+  const { data: created, error: cErr } = await admin.auth.admin.inviteUserByEmail(email, {
+    data: { full_name: fullName, phone },
+    redirectTo,
   })
   if (cErr || !created.user) {
     return json({ error: cErr?.message ?? 'create failed' }, 400)
+  }
+
+  // user_type/created_by go in app_metadata, not the invite's user_metadata:
+  // app_metadata can only be written via this service-role Admin API call,
+  // never by the user themselves — that's what stops a public signUp from
+  // granting itself a role (see migration 0013).
+  const { error: mErr } = await admin.auth.admin.updateUserById(created.user.id, {
+    app_metadata: { user_type: userType, created_by: userData.user.id },
+  })
+  if (mErr) {
+    return json({ error: mErr.message }, 400)
+  }
+
+  // handle_new_auth_user() (0013) reads app_metadata.user_type at the
+  // auth.users INSERT that inviteUserByEmail just did — before the
+  // updateUserById above ever ran — so it always inserted this profile as
+  // 'customer' (plus a customers row). Re-stamp the real type now, and drop
+  // that row if this account isn't actually a customer.
+  const { data: typeRow, error: typeErr } = await admin
+    .from('user_types')
+    .select('id')
+    .eq('key', userType)
+    .single()
+  if (typeErr || !typeRow) {
+    return json({ error: typeErr?.message ?? 'unknown user_type' }, 400)
+  }
+  const { error: fixTypeErr } = await admin
+    .from('profiles')
+    .update({ user_type_id: typeRow.id })
+    .eq('id', created.user.id)
+  if (fixTypeErr) {
+    return json({ error: fixTypeErr.message }, 400)
+  }
+  if (userType !== 'customer') {
+    const { error: dropErr } = await admin.from('customers').delete().eq('profile_id', created.user.id)
+    if (dropErr) {
+      return json({ error: dropErr.message }, 400)
+    }
   }
 
   return json({ user_id: created.user.id }, 200)

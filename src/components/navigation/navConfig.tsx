@@ -11,7 +11,7 @@ export interface NavItem {
 
 /**
  * Full staff route set. The mobile bottom bar shows the first four
- * (Home / Dashboard / Customers / Bills); Settings is desktop-rail only.
+ * (Home / Dashboard / Customers / Bills) plus Settings for admins.
  */
 export const STAFF_NAV: NavItem[] = [
   { to: ROUTES.home, label: 'Home', shortLabel: 'Home', icon: Home },
@@ -21,10 +21,17 @@ export const STAFF_NAV: NavItem[] = [
   { to: ROUTES.settings, label: 'Settings', shortLabel: 'Settings', icon: Settings },
 ]
 
-export const MOBILE_NAV: NavItem[] = STAFF_NAV.slice(0, 4)
-
 const SALES_ITEM: NavItem = { to: ROUTES.sales, label: 'Sales', shortLabel: 'Sales', icon: TrendingUp }
 const SETTINGS_ITEM = STAFF_NAV.find((n) => n.to === ROUTES.settings)!
+
+/**
+ * Mobile bottom bar. Everyone gets Home/Dashboard/Customers/Bills; only an
+ * admin also gets Settings (the /settings route is admin-gated regardless).
+ */
+export function mobileNavFor(isAdmin: boolean): NavItem[] {
+  const base = STAFF_NAV.slice(0, 4)
+  return isAdmin ? [...base, SETTINGS_ITEM] : base
+}
 
 /**
  * Desktop rail nav. Everyone gets Dashboard/Customers/Bills + Sales; only an

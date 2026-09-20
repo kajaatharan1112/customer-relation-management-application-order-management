@@ -3,6 +3,7 @@ export const ROUTES = {
   register: '/register',
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
+  verifyEmail: '/verify-email',
   authCallback: '/auth/callback',
   home: '/home',
   dashboard: '/',

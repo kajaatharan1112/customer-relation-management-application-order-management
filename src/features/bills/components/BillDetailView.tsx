@@ -1,13 +1,13 @@
 import { Fragment, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
 import {
-  ArrowLeft,
+  X,
   Mail,
   Phone,
   Calendar,
   Clock,
   Pencil,
   Trash2,
+  Wallet,
   History,
   MessageSquare,
   Paperclip,
@@ -47,43 +47,37 @@ import { AttachmentList } from '@/features/attachments/components/AttachmentList
 import { attachmentRepository } from '@/features/attachments/data/attachment.repository'
 import { useRealtimeBill } from '@/features/realtime/useRealtimeBill'
 
-export default function BillDetailPage() {
-  const { id = '' } = useParams()
-  const navigate = useNavigate()
+export function BillDetailView({ billId, onClose }: { billId: string; onClose: () => void }) {
   const { show } = useToast()
   const { isStaff } = useRole()
 
-  useRealtimeBill(id)
+  useRealtimeBill(billId)
 
-  const { data: bill, isLoading } = useBill(id)
+  const { data: bill, isLoading } = useBill(billId)
   const { data: customers } = useCustomers()
   const { data: orderTypes } = useOrderTypes()
   const { data: templates } = useWorkflowTemplates()
-  const history = useBillHistory(id)
-  const comments = useComments(id)
-  const attachments = useAttachments(id)
+  const history = useBillHistory(billId)
+  const comments = useComments(billId)
+  const attachments = useAttachments(billId)
 
   const setStatus = useSetBillStatus()
   const recordPayment = useRecordPayment()
   const del = useDeleteBill()
   const advance = useAdvanceStage()
-  const addComment = useAddComment(id)
-  const upload = useUploadAttachment(id)
-  const removeAtt = useRemoveAttachment(id)
+  const addComment = useAddComment(billId)
+  const upload = useUploadAttachment(billId)
+  const removeAtt = useRemoveAttachment(billId)
 
   const [editing, setEditing] = useState(false)
   const [paying, setPaying] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   if (isLoading) {
-    return (
-      <div className="p-6 text-sm text-[var(--color-neo-text-secondary)] md:p-8">Loading…</div>
-    )
+    return <div className="p-2 text-sm text-[var(--color-neo-text-secondary)]">Loading…</div>
   }
   if (!bill) {
-    return (
-      <div className="p-6 text-sm text-[var(--color-neo-text-secondary)] md:p-8">Bill not found.</div>
-    )
+    return <div className="p-2 text-sm text-[var(--color-neo-text-secondary)]">Bill not found.</div>
   }
 
   const balance = bill.total - bill.paidAmount
@@ -99,15 +93,7 @@ export default function BillDetailPage() {
   }
 
   return (
-    <div className="space-y-5 p-6 md:p-8">
-      <button
-        type="button"
-        onClick={() => navigate('/bills')}
-        className="inline-flex items-center gap-1.5 rounded-[var(--radius-neo-pill)] bg-[var(--color-neo-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--color-neo-text-secondary)] shadow-[var(--shadow-neo-pressed)]"
-      >
-        <ArrowLeft size={14} /> Bills
-      </button>
-
+    <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-extrabold tracking-tight text-[var(--color-neo-text-primary)]">
@@ -116,6 +102,13 @@ export default function BillDetailPage() {
           <StatusBadge label={bill.statusLabel} color={BUCKET_COLOR[bucketOf(bill.statusKey)]} />
         </div>
         <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setPaying(true)}
+            className="flex items-center gap-1.5 rounded-xl bg-[var(--color-neo-primary)]/10 px-3 py-2 text-xs font-semibold text-[var(--color-neo-primary)] transition active:scale-95"
+          >
+            <Wallet size={15} />Record payment
+          </button>
           <button
             type="button"
             onClick={() => setEditing(true)}
@@ -129,6 +122,14 @@ export default function BillDetailPage() {
             className="flex items-center gap-1.5 rounded-xl bg-[var(--color-neo-danger)]/10 px-3 py-2 text-xs font-semibold text-[var(--color-neo-danger)] transition active:scale-95"
           >
             <Trash2 size={15} />Delete
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="flex items-center gap-1.5 rounded-xl bg-[var(--color-neo-surface)] px-3 py-2 text-xs font-semibold text-[var(--color-neo-text-secondary)] shadow-[var(--shadow-neo-pressed)] transition active:scale-95"
+          >
+            <X size={15} />
           </button>
         </div>
       </div>
@@ -268,9 +269,6 @@ export default function BillDetailPage() {
               }
             }}
           />
-          <Button variant="default" size="sm" onClick={() => setPaying(true)}>
-            Record payment
-          </Button>
         </div>
       </div>
 
@@ -359,7 +357,7 @@ export default function BillDetailPage() {
             onClick={async () => {
               await del.mutateAsync(bill.id)
               show({ type: 'success', title: 'Bill deleted' })
-              navigate('/bills')
+              onClose()
             }}
           >
             Delete

@@ -32,20 +32,27 @@ describe('WorkflowList', () => {
     expect(screen.getByText(/no stages/i)).toBeInTheDocument()
   })
 
-  it('hides the footer actions when canWrite is false', () => {
+  it('hides the actions menu and card click when canWrite is false', () => {
     render(<WorkflowList templates={templates} canWrite={false} onEdit={() => {}} onDelete={() => {}} />)
-    expect(screen.queryByRole('button', { name: /edit/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /actions for/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Standard Print' })).not.toBeInTheDocument()
   })
 
-  it('wires Edit and Delete to the handlers with the template', async () => {
+  it('clicking the card calls onEdit', async () => {
+    const onEdit = vi.fn()
+    render(<WorkflowList templates={[templates[0]!]} canWrite onEdit={onEdit} onDelete={() => {}} />)
+    await userEvent.click(screen.getByText('Standard Print'))
+    expect(onEdit).toHaveBeenCalledWith(templates[0])
+  })
+
+  it('wires the Delete menu item without triggering onEdit', async () => {
     const onEdit = vi.fn()
     const onDelete = vi.fn()
     render(<WorkflowList templates={[templates[0]!]} canWrite onEdit={onEdit} onDelete={onDelete} />)
-    await userEvent.click(screen.getByRole('button', { name: /edit/i }))
-    await userEvent.click(screen.getByRole('button', { name: /delete/i }))
-    expect(onEdit).toHaveBeenCalledWith(templates[0])
+    await userEvent.click(screen.getByRole('button', { name: /actions for standard print/i }))
+    await userEvent.click(screen.getByRole('menuitem', { name: /delete/i }))
     expect(onDelete).toHaveBeenCalledWith(templates[0])
+    expect(onEdit).not.toHaveBeenCalled()
   })
 
   it('shows the empty copy when there are no templates', () => {

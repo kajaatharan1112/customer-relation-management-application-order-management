@@ -1,14 +1,15 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { Package, LogOut } from 'lucide-react'
+import { Package } from 'lucide-react'
 import { cn } from '@/shared/utils/cn'
 import { ROUTES } from '@/shared/constants/routes'
 import { APP_NAME } from '@/shared/constants/app'
 import { PORTAL_NAV } from '@/components/navigation/navConfig'
-import { authService } from '@/core/auth/auth.service'
+import { NavPillBar } from '@/components/navigation/NavPillBar'
+import { ProfileMenu } from '@/features/profile/components/ProfileMenu'
 
 export function PortalLayout() {
   return (
-    <div className="flex min-h-dvh flex-col bg-[var(--color-neo-bg)]">
+    <div className="flex min-h-dvh flex-col overflow-x-hidden bg-[var(--color-neo-bg)]">
       <header className="flex h-[64px] items-center justify-between border-b border-white/10 bg-[var(--color-neo-text-primary)] px-5">
         <div className="flex items-center gap-2 text-white">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--color-neo-primary)] to-[var(--color-neo-primary-2)]">
@@ -16,17 +17,9 @@ export function PortalLayout() {
           </span>
           <span className="text-base font-bold tracking-tight">{APP_NAME}</span>
         </div>
-        <button
-          type="button"
-          onClick={() => authService.signOut()}
-          title="Sign out"
-          aria-label="Sign out"
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-[var(--color-neo-danger)]"
-        >
-          <LogOut size={17} />
-        </button>
+        <ProfileMenu />
       </header>
-      <nav className="flex items-center gap-1 border-b border-white/40 bg-[var(--color-neo-card)] px-5">
+      <nav className="hidden items-center gap-1 border-b border-white/40 bg-[var(--color-neo-card)] px-5 md:flex">
         {PORTAL_NAV.map((item) => (
           <NavLink
             key={item.to}
@@ -46,9 +39,10 @@ export function PortalLayout() {
           </NavLink>
         ))}
       </nav>
-      <main className="flex-1">
+      <main className="flex-1 pb-[calc(88px+env(safe-area-inset-bottom,0px))] md:pb-0">
         <Outlet />
       </main>
+      <NavPillBar items={PORTAL_NAV} />
     </div>
   )
 }

@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
+import { Mail, Lock } from 'lucide-react'
 import { authService } from '@/core/auth/auth.service'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
@@ -49,6 +50,7 @@ export default function LoginPage() {
           label="Email"
           type="email"
           autoComplete="email"
+          icon={<Mail size={16} />}
           error={errors.email?.message}
           {...register('email')}
         />
@@ -57,11 +59,15 @@ export default function LoginPage() {
           label="Password"
           type="password"
           autoComplete="current-password"
+          icon={<Lock size={16} />}
           error={errors.password?.message}
           {...register('password')}
         />
         <div className="mt-2 text-right text-sm">
           <AuthLink to={ROUTES.forgotPassword}>Forgot password?</AuthLink>
+        </div>
+        <div className="mt-1 text-right text-sm">
+          <AuthLink to={`${ROUTES.verifyEmail}?type=invite`}>Have an invite code?</AuthLink>
         </div>
         <Button type="submit" variant="primary" fullWidth disabled={isSubmitting} className="mt-4">
           {isSubmitting ? 'Signing in…' : 'Sign in'}

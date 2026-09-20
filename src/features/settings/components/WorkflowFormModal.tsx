@@ -25,12 +25,22 @@ export function WorkflowFormModal({
   const { mutateAsync, isPending } = useSaveWorkflow()
   const { show } = useToast()
 
+  const isEdit = !!template
+  const initialStages = template?.stages.map((s) => ({ id: s.id, name: s.name, color: s.color, isFinal: s.isFinal })) ?? []
+  const dirty =
+    isEdit &&
+    (name !== template!.name ||
+      description !== (template!.description ?? '') ||
+      isActive !== template!.isActive ||
+      JSON.stringify(stages) !== JSON.stringify(initialStages))
+
   const finalCount = stages.filter((s) => s.isFinal).length
   const canSave =
     name.trim().length > 0 &&
     stages.length > 0 &&
     stages.every((s) => s.name.trim().length > 0) &&
-    finalCount === 1
+    finalCount === 1 &&
+    (!isEdit || dirty)
 
   const onSave = async () => {
     try {
@@ -56,9 +66,11 @@ export function WorkflowFormModal({
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="button" variant="primary" disabled={!canSave || isPending} onClick={onSave}>
-            {isPending ? 'Saving…' : 'Save'}
-          </Button>
+          {(!isEdit || dirty) && (
+            <Button type="button" variant="primary" disabled={!canSave || isPending} onClick={onSave}>
+              {isPending ? 'Saving…' : 'Save'}
+            </Button>
+          )}
         </FormActions>
       }
     >

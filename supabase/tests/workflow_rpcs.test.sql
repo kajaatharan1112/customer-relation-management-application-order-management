@@ -1,7 +1,7 @@
 \set ON_ERROR_STOP on
 begin;
 
-insert into auth.users (id, email, raw_user_meta_data) values
+insert into auth.users (id, email, raw_app_meta_data) values
   ('00000000-0000-0000-0000-0000000000e1', 'admin2@t.co', '{"user_type":"admin_member"}'),
   ('00000000-0000-0000-0000-0000000000e2', 'cust2@t.co',  '{"user_type":"customer"}');
 

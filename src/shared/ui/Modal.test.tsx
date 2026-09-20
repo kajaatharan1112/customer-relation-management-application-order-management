@@ -1,7 +1,18 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Modal } from '@/shared/ui/Modal'
+
+function setMobile(matches: boolean) {
+  window.matchMedia = vi.fn().mockReturnValue({
+    matches,
+    media: '',
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  })
+}
+
+beforeEach(() => setMobile(false))
 
 describe('Modal', () => {
   it('renders nothing when closed', () => {
@@ -42,6 +53,15 @@ describe('Modal', () => {
     expect(screen.getByRole('dialog')).toHaveClass('max-w-[920px]')
   })
 
+  it('applies the extra-wide width for size="xl"', () => {
+    render(
+      <Modal open onClose={() => {}} title="T" size="xl">
+        body
+      </Modal>,
+    )
+    expect(screen.getByRole('dialog')).toHaveClass('max-w-[1280px]')
+  })
+
   it('renders the footer in a pinned region and keeps the body scrollable', () => {
     render(
       <Modal open onClose={() => {}} title="T" footer={<button>Save</button>}>
@@ -51,5 +71,32 @@ describe('Modal', () => {
     const dialog = screen.getByRole('dialog')
     expect(dialog.querySelector('[data-modal-body]')).toHaveClass('overflow-y-auto')
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
+  })
+
+  describe('on mobile', () => {
+    beforeEach(() => setMobile(true))
+
+    it('renders nothing when closed', () => {
+      render(
+        <Modal open={false} onClose={() => {}}>
+          body
+        </Modal>,
+      )
+      expect(screen.queryByText('body')).not.toBeInTheDocument()
+    })
+
+    it('renders as a full-page dialog with no backdrop, title and footer intact', () => {
+      render(
+        <Modal open onClose={() => {}} title="Hi" footer={<button>Save</button>}>
+          body
+        </Modal>,
+      )
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+      expect(screen.getByText('Hi')).toBeInTheDocument()
+      expect(screen.getByText('body')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
+      // no dimmed backdrop click-to-close overlay on the mobile "page"
+      expect(document.querySelector('.bg-black\\/25')).not.toBeInTheDocument()
+    })
   })
 })

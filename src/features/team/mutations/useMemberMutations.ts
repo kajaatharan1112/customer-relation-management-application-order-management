@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { memberRepository } from '@/features/team/data/member.repository'
+import type { MemberOtherDetails } from '@/features/team/team.types'
 import type { MemberRole } from '@/shared/constants/memberRoles'
 
 function useInvalidate() {
@@ -15,7 +16,7 @@ export function useCreateMember() {
       email: string
       phone: string
       role: MemberRole
-      tempPassword: string
+      otherDetails: MemberOtherDetails
     }) => memberRepository.create(v),
     onSuccess: inv,
   })
@@ -26,6 +27,15 @@ export function useUpdateMember() {
   return useMutation({
     mutationFn: (v: { profileId: string; fullName: string; phone: string }) =>
       memberRepository.updateDetail(v.profileId, { fullName: v.fullName, phone: v.phone }),
+    onSuccess: inv,
+  })
+}
+
+export function useUpdateMemberOtherDetails() {
+  const inv = useInvalidate()
+  return useMutation({
+    mutationFn: (v: { profileId: string; otherDetails: MemberOtherDetails }) =>
+      memberRepository.updateOtherDetails(v.profileId, v.otherDetails),
     onSuccess: inv,
   })
 }

@@ -3,7 +3,7 @@ import { createTaggedBill } from './helpers'
 
 test.use({ storageState: 'e2e/.auth/admin.json' })
 
-test('a bill renders as a card with View/Delete (no Edit) and search filters to it', async ({ page }) => {
+test('a bill renders as a clickable card with a Delete menu, and search filters to it', async ({ page }) => {
   const url = await createTaggedBill(page, 'Bill card grid check')
   const id = url.split('/').pop()!
   const headingText = await page.getByRole('heading', { name: /INV-\d{6}/ }).first().innerText()
@@ -13,12 +13,13 @@ test('a bill renders as a card with View/Delete (no Edit) and search filters to 
   await page.getByRole('textbox', { name: 'Search bills' }).fill(billNo)
 
   await expect(page.getByText(billNo)).toBeVisible()
-  // BillsPage passes no onEdit → the grid cards have View + Delete only.
-  await expect(page.getByRole('button', { name: 'View' })).toHaveCount(1)
-  await expect(page.getByRole('button', { name: 'Delete' })).toHaveCount(1)
-  await expect(page.getByRole('button', { name: 'Edit' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'View' })).toHaveCount(0)
 
-  await page.getByRole('button', { name: 'View' }).click()
+  await page.getByRole('button', { name: `Actions for ${billNo}` }).click()
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toHaveCount(1)
+  await page.keyboard.press('Escape')
+
+  await page.getByText(billNo).click()
   await expect(page).toHaveURL(new RegExp(`/bills/${id}$`))
 })
 

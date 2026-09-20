@@ -9,16 +9,16 @@ export function Sidebar() {
   const { isAdmin } = useRole()
   const nav = sidebarNavFor(isAdmin)
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 hidden w-[72px] flex-col items-center bg-[var(--color-neo-text-primary)] py-4 md:flex">
+    <aside className="fixed inset-y-0 left-0 z-50 hidden w-[96px] flex-col items-center bg-[var(--color-neo-text-primary)] py-5 md:flex">
       <NavLink
         to={ROUTES.home}
         aria-label="Home"
-        className="mb-6 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-neo-primary)] to-[var(--color-neo-primary-2)] text-white shadow-lg"
+        className="mb-7 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-neo-primary)] to-[var(--color-neo-primary-2)] text-white"
       >
         <Package size={18} />
       </NavLink>
 
-      <nav className="flex w-full flex-1 flex-col items-center gap-1 px-2">
+      <nav className="flex w-full flex-1 flex-col items-center gap-1.5 px-3">
         {nav.map((item) => (
           <NavLink
             key={item.to}
@@ -26,15 +26,15 @@ export function Sidebar() {
             end={item.to === '/'}
             className={({ isActive }) =>
               cn(
-                'flex w-full flex-col items-center gap-0.5 rounded-xl px-1 py-2.5 transition-all duration-200',
+                'flex w-full flex-col items-center gap-1 rounded-xl px-1 py-3 transition-colors duration-200',
                 isActive
-                  ? 'bg-white/15 text-white'
-                  : 'text-white/45 hover:bg-white/10 hover:text-white/80',
+                  ? 'bg-white/10 text-white'
+                  : 'text-white/45 hover:bg-white/5 hover:text-white/80',
               )
             }
           >
-            <item.icon size={18} />
-            <span className="text-[9px] font-semibold leading-none tracking-wide">
+            <item.icon size={20} />
+            <span className="text-[11px] font-medium leading-none tracking-wide">
               {item.shortLabel}
             </span>
           </NavLink>
