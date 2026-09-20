@@ -11,6 +11,7 @@ interface CustomerRow {
     full_name: string
     email: string
     phone: string | null
+    status: 'active' | 'invited' | 'disabled'
     bills: { count: number }[]
   } | null
 }
@@ -29,7 +30,7 @@ export const customerRepository = {
     const { data, error } = await supabase
       .from('customers')
       .select(
-        'profile_id, company_name, address_line, city, notes, profiles!profile_id(full_name, email, phone, bills!customer_id(count))',
+        'profile_id, company_name, address_line, city, notes, profiles!profile_id(full_name, email, phone, status, bills!customer_id(count))',
       )
       .is('deleted_at', null)
       .order('company_name', { nullsFirst: false })
@@ -39,6 +40,7 @@ export const customerRepository = {
       fullName: r.profiles?.full_name ?? '',
       email: r.profiles?.email ?? '',
       phone: r.profiles?.phone ?? null,
+      status: r.profiles?.status ?? 'active',
       companyName: r.company_name,
       addressLine: r.address_line,
       city: r.city,

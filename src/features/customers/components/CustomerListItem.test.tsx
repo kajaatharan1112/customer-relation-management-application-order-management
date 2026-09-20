@@ -6,6 +6,7 @@ import type { CustomerVM } from '@/features/customers/customers.types'
 const base: CustomerVM = {
   profileId: 'p1', fullName: 'Ravi Kumar', email: 'ravi@x.lk', phone: '+94 77 1',
   companyName: 'Ravi Textiles', addressLine: null, city: 'Colombo', notes: null, billCount: 3,
+  status: 'active',
 }
 const noop = () => {}
 
@@ -38,7 +39,7 @@ describe('CustomerListItem', () => {
     expect(onSelect).toHaveBeenCalledWith(base)
   })
 
-  it('opens a menu with Add bill/Edit/Delete and wires them without triggering onSelect', async () => {
+  it('opens a menu with Add bill/Edit/Block and wires them without triggering onSelect', async () => {
     const onSelect = vi.fn()
     const onEdit = vi.fn()
     const onDelete = vi.fn()
@@ -66,7 +67,7 @@ describe('CustomerListItem', () => {
     expect(onEdit).toHaveBeenCalledWith(base)
 
     await userEvent.click(screen.getByRole('button', { name: /actions for ravi kumar/i }))
-    await userEvent.click(screen.getByRole('menuitem', { name: /delete/i }))
+    await userEvent.click(screen.getByRole('menuitem', { name: /block/i }))
     expect(onDelete).toHaveBeenCalledWith(base)
   })
 
@@ -102,5 +103,24 @@ describe('CustomerListItem', () => {
     render(<CustomerListItem customer={base} selected onSelect={noop} onEdit={noop} onDelete={noop} onAddBill={noop} />)
     const row = screen.getByText('Ravi Kumar').closest('[aria-pressed]')
     expect(row).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('shows an Invited badge only when the customer has not verified yet', () => {
+    const { rerender } = render(
+      <CustomerListItem customer={base} selected={false} onSelect={noop} onEdit={noop} onDelete={noop} onAddBill={noop} />,
+    )
+    expect(screen.queryByText('Invited')).not.toBeInTheDocument()
+
+    rerender(
+      <CustomerListItem
+        customer={{ ...base, status: 'invited' }}
+        selected={false}
+        onSelect={noop}
+        onEdit={noop}
+        onDelete={noop}
+        onAddBill={noop}
+      />,
+    )
+    expect(screen.getByText('Invited')).toBeInTheDocument()
   })
 })

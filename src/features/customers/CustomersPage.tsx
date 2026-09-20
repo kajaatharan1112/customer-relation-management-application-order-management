@@ -92,9 +92,9 @@ export default function CustomersPage() {
     if (!confirmDelete) return
     try {
       await del.mutateAsync(confirmDelete.profileId)
-      show({ type: 'success', title: 'Customer deleted' })
+      show({ type: 'success', title: 'Customer blocked' })
     } catch (err) {
-      show({ type: 'error', title: 'Could not delete', message: (err as Error).message })
+      show({ type: 'error', title: 'Could not block', message: (err as Error).message })
     } finally {
       setConfirmDelete(null)
     }
@@ -262,22 +262,23 @@ export default function CustomersPage() {
         />
       )}
 
-      <Modal open={!!confirmDelete} onClose={() => setConfirmDelete(null)} title="Delete customer?">
+      <Modal open={!!confirmDelete} onClose={() => setConfirmDelete(null)} title="Block customer?">
         {confirmDelete && confirmDelete.billCount > 0 ? (
           <p className="text-sm text-[var(--color-neo-text-secondary)]">
-            "{confirmDelete.fullName}" has {confirmDelete.billCount} active bill(s). Delete those first.
+            "{confirmDelete.fullName}" has {confirmDelete.billCount} active bill(s). A customer with active bills
+            can't be blocked.
           </p>
         ) : (
           <>
             <p className="text-sm text-[var(--color-neo-text-secondary)]">
-              This disables "{confirmDelete?.fullName}" and hides them from the list.
+              This blocks "{confirmDelete?.fullName}" and hides them from the list. Their bill history is kept.
             </p>
             <div className="mt-4 flex justify-end gap-3">
               <Button variant="ghost" onClick={() => setConfirmDelete(null)}>
                 Cancel
               </Button>
               <Button variant="danger" onClick={runDelete}>
-                Delete
+                Block
               </Button>
             </div>
           </>

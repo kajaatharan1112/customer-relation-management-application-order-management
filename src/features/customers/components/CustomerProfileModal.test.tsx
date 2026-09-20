@@ -13,6 +13,7 @@ vi.mock('@/shared/ui/Toast', () => ({ useToast: () => ({ show: vi.fn() }) }))
 const base: CustomerVM = {
   profileId: 'p1', fullName: 'Ravi Kumar', email: 'ravi@x.lk', phone: '+94 77 1',
   companyName: 'Ravi Textiles', addressLine: null, city: 'Colombo', notes: null, billCount: 0,
+  status: 'active',
 }
 
 function setMobile(matches: boolean) {
@@ -55,18 +56,18 @@ describe('CustomerProfileModal', () => {
     expect(onClose).toHaveBeenCalled()
   })
 
-  it('blocks delete for a customer with bills, and deletes one without', async () => {
+  it('blocks a customer with bills from being blocked, and blocks one without', async () => {
     const onClose = vi.fn()
     const { rerender } = render(
       <CustomerProfileModal customer={{ ...base, billCount: 2 }} onClose={onClose} />,
     )
-    await userEvent.click(screen.getByRole('button', { name: /delete customer/i }))
+    await userEvent.click(screen.getByRole('button', { name: /block customer/i }))
     expect(screen.getByText(/has 2 active bill/i)).toBeInTheDocument()
     expect(h.del).not.toHaveBeenCalled()
 
     rerender(<CustomerProfileModal customer={base} onClose={onClose} />)
-    await userEvent.click(screen.getByRole('button', { name: /delete customer/i }))
-    await userEvent.click(screen.getByRole('button', { name: 'Delete' }))
+    await userEvent.click(screen.getByRole('button', { name: /block customer/i }))
+    await userEvent.click(screen.getByRole('button', { name: 'Block' }))
     expect(h.del).toHaveBeenCalledWith('p1')
     expect(onClose).toHaveBeenCalled()
   })

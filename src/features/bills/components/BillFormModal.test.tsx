@@ -21,6 +21,7 @@ const customers = [
     city: null,
     notes: null,
     billCount: 0,
+    status: 'active' as const,
   },
 ]
 const orderTypes = [{ id: 'ot1', name: 'Printing', fixedAmount: 250 }]

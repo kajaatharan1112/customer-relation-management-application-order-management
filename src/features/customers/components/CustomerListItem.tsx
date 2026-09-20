@@ -1,5 +1,6 @@
-import { Pencil, Trash2, FilePlus2 } from 'lucide-react'
+import { Pencil, Ban, FilePlus2 } from 'lucide-react'
 import { CardMenu } from '@/shared/ui/CardMenu'
+import { StatusBadge } from '@/shared/ui/StatusBadge'
 import type { CustomerVM } from '@/features/customers/customers.types'
 import type { CustomerFinance } from '@/features/customers/customers.selectors'
 import { formatLKRShort } from '@/shared/utils/formatLKRShort'
@@ -25,6 +26,7 @@ function initials(name: string): string {
 }
 
 export function CustomerListItem({ customer: c, selected, onSelect, onEdit, onDelete, onAddBill, finance }: CustomerListItemProps) {
+  const invited = c.status === 'invited'
   return (
     <div
       role="button"
@@ -50,8 +52,11 @@ export function CustomerListItem({ customer: c, selected, onSelect, onEdit, onDe
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <span className="truncate text-[15px] font-semibold text-[var(--color-neo-text-primary)]">{c.fullName}</span>
-          <span className="shrink-0 text-[11px] font-semibold text-[var(--color-neo-text-secondary)]">
-            {c.billCount} {c.billCount === 1 ? 'bill' : 'bills'}
+          <span className="flex shrink-0 items-center gap-1.5">
+            {invited && <StatusBadge label="Invited" color="var(--color-neo-warning)" />}
+            <span className="text-[11px] font-semibold text-[var(--color-neo-text-secondary)]">
+              {c.billCount} {c.billCount === 1 ? 'bill' : 'bills'}
+            </span>
           </span>
         </div>
         <div className="mt-0.5 flex items-center justify-between gap-2">
@@ -71,7 +76,7 @@ export function CustomerListItem({ customer: c, selected, onSelect, onEdit, onDe
         items={[
           { label: 'Add bill', icon: FilePlus2, onClick: () => onAddBill(c) },
           { label: 'Edit', icon: Pencil, onClick: () => onEdit(c) },
-          { label: 'Delete', icon: Trash2, tone: 'danger', onClick: () => onDelete(c) },
+          { label: 'Block', icon: Ban, tone: 'danger', onClick: () => onDelete(c) },
         ]}
       />
     </div>

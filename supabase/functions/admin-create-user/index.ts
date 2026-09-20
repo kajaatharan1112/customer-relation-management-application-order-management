@@ -65,7 +65,11 @@ Deno.serve(async (req) => {
 
   const admin = createClient(url, service)
   const { data: created, error: cErr } = await admin.auth.admin.inviteUserByEmail(email, {
-    data: { full_name: fullName, phone },
+    // handle_new_auth_user (0015) reads this to mark the profile 'invited':
+    // GoTrue sets auth.users.invited_at in a step after the row insert that
+    // fires the trigger, so it isn't visible yet at that point — this flag,
+    // part of the same invite call's user_metadata, is.
+    data: { full_name: fullName, phone, invited_by_admin: true },
     redirectTo,
   })
   if (cErr || !created.user) {
