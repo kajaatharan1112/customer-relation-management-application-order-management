@@ -82,5 +82,12 @@ Deno.serve(async (req) => {
   const { error: pwErr } = await admin.auth.admin.updateUserById(verified.user.id, { password })
   if (pwErr) return json({ error: pwErr.message }, 400)
 
+  // Was created 'invited' by handle_new_auth_user (0015) — now confirmed.
+  const { error: statusErr } = await admin
+    .from('profiles')
+    .update({ status: 'active' })
+    .eq('id', verified.user.id)
+  if (statusErr) return json({ error: statusErr.message }, 400)
+
   return json({ ok: true, user_id: verified.user.id }, 200)
 })

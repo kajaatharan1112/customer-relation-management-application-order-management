@@ -94,14 +94,14 @@ describe('CustomersPage', () => {
     expect(screen.getByText('No bills yet for this customer.')).toBeInTheDocument()
   })
 
-  it('blocks delete for a customer with bills (no confirm button in the dialog)', async () => {
+  it('blocks the Block action for a customer with bills (no confirm button in the dialog)', async () => {
     render(<CustomersPage />)
     await userEvent.type(screen.getByPlaceholderText(/search/i), 'bob')
     await userEvent.click(screen.getByRole('button', { name: /actions for bob bee/i }))
-    await userEvent.click(screen.getByRole('menuitem', { name: /delete/i }))
+    await userEvent.click(screen.getByRole('menuitem', { name: /block/i }))
     const dialog = screen.getByRole('dialog')
     expect(within(dialog).getByText(/has 3 active bill/i)).toBeInTheDocument()
-    expect(within(dialog).queryByRole('button', { name: /delete/i })).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole('button', { name: /block/i })).not.toBeInTheDocument()
   })
 
   it('defaults the bill filter to In progress and switching to All shows every bill', async () => {

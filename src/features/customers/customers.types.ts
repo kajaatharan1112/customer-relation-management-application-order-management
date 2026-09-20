@@ -8,4 +8,5 @@ export interface CustomerVM {
   city: string | null
   notes: string | null
   billCount: number
+  status: 'active' | 'invited' | 'disabled'
 }

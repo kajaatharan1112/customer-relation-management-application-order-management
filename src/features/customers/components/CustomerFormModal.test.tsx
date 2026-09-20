@@ -57,6 +57,7 @@ describe('CustomerFormModal', () => {
           city: null,
           notes: null,
           billCount: 0,
+          status: 'active',
         }}
         onClose={() => {}}
       />,

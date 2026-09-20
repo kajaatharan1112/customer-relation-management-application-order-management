@@ -5,7 +5,7 @@ import type { CustomerVM } from '@/features/customers/customers.types'
 
 const mk = (id: string): CustomerVM => ({
   profileId: id, fullName: `Name ${id}`, email: `${id}@x.lk`, phone: null,
-  companyName: null, addressLine: null, city: null, notes: null, billCount: 0,
+  companyName: null, addressLine: null, city: null, notes: null, billCount: 0, status: 'active',
 })
 
 it('renders a row per customer + empty copy', () => {

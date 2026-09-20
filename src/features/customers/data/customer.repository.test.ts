@@ -9,7 +9,7 @@ const h = vi.hoisted(() => ({
         address_line: '1 St',
         city: 'Colombo',
         notes: null,
-        profiles: { full_name: 'Cara', email: 'cara@x.co', phone: '123', bills: [{ count: 2 }] },
+        profiles: { full_name: 'Cara', email: 'cara@x.co', phone: '123', status: 'invited', bills: [{ count: 2 }] },
       },
     ],
     error: null,
@@ -50,6 +50,7 @@ describe('customerRepository', () => {
         city: 'Colombo',
         notes: null,
         billCount: 2,
+        status: 'invited',
       },
     ])
   })

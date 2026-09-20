@@ -1,5 +1,5 @@
 import { useState, type InputHTMLAttributes } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Ban } from 'lucide-react'
 import { Modal } from '@/shared/ui/Modal'
 import { Button } from '@/shared/ui/Button'
 import { useToast } from '@/shared/ui/Toast'
@@ -79,10 +79,10 @@ export function CustomerProfileModal({ customer, onClose }: { customer: Customer
   const runDelete = async () => {
     try {
       await del.mutateAsync(customer.profileId)
-      show({ type: 'success', title: 'Customer deleted' })
+      show({ type: 'success', title: 'Customer blocked' })
       onClose()
     } catch (err) {
-      show({ type: 'error', title: 'Could not delete', message: (err as Error).message })
+      show({ type: 'error', title: 'Could not block', message: (err as Error).message })
     } finally {
       setConfirmDelete(false)
     }
@@ -132,7 +132,7 @@ export function CustomerProfileModal({ customer, onClose }: { customer: Customer
           onClick={() => setConfirmDelete(true)}
           className="flex items-center gap-1.5 rounded-xl bg-[var(--color-neo-danger)]/10 px-3 py-2 text-xs font-semibold text-[var(--color-neo-danger)] transition active:scale-95"
         >
-          <Trash2 size={15} />Delete customer
+          <Ban size={15} />Block customer
         </button>
         {dirty && (
           <Button variant="primary" size="sm" disabled={!canSave || update.isPending} onClick={onSave}>
@@ -141,22 +141,23 @@ export function CustomerProfileModal({ customer, onClose }: { customer: Customer
         )}
       </div>
 
-      <Modal open={confirmDelete} onClose={() => setConfirmDelete(false)} title="Delete customer?">
+      <Modal open={confirmDelete} onClose={() => setConfirmDelete(false)} title="Block customer?">
         {customer.billCount > 0 ? (
           <p className="text-sm text-[var(--color-neo-text-secondary)]">
-            "{customer.fullName}" has {customer.billCount} active bill(s). Delete those first.
+            "{customer.fullName}" has {customer.billCount} active bill(s). A customer with active bills can't be
+            blocked.
           </p>
         ) : (
           <>
             <p className="text-sm text-[var(--color-neo-text-secondary)]">
-              This disables "{customer.fullName}" and hides them from the list.
+              This blocks "{customer.fullName}" and hides them from the list. Their bill history is kept.
             </p>
             <div className="mt-4 flex justify-end gap-3">
               <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
                 Cancel
               </Button>
               <Button variant="danger" onClick={runDelete}>
-                Delete
+                Block
               </Button>
             </div>
           </>
